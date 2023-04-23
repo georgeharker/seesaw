@@ -156,7 +156,13 @@ char const * const eventName[] = {
 	"ENCODER_STOP_REQ",
 	"ENCODER_STOP_CFM",
 	"ENCODER_READ_REG_REQ",
-	"ENCODER_WRITE_REG_REQ"
+	"ENCODER_WRITE_REG_REQ",
+
+	"BLINK_START_REQ",
+	"BLINK_START_CFM",
+	"BLINK_STOP_REQ",
+	"BLINK_STOP_CFM",
+	"BLINK_TIMER",
 };  
   
 char const * GetEvtName(QP::QSignal sig) {

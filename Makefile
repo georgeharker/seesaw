@@ -110,6 +110,7 @@ SOURCES = $(COMMON_SRC) \
 	source/System.cpp \
 	source/AOKeypad.cpp \
 	source/AOEncoder.cpp \
+	source/AOBlinky.cpp \
 	bsp/bsp_adc.cpp \
 	bsp/bsp_gpio.cpp \
 	bsp/bsp_sercom.cpp \
@@ -120,10 +121,11 @@ SOURCES = $(COMMON_SRC) \
 	bsp/adafruit_ptc.cpp \
 
 ifeq ($(CHIP_FAMILY), SAMD21)
-FULL_SOURCES = $(SOURCES) \
-	source/AOUSB.cpp \
-	source/USB/CDC.cpp \
-	source/USB/USBCore.cpp
+FULL_SOURCES = $(SOURCES)
+# FULL_SOURCES = $(SOURCES) \
+# 	source/AOUSB.cpp \
+# 	source/USB/CDC.cpp \
+# 	source/USB/USBCore.cpp
 endif
 
 ifeq ($(CHIP_FAMILY), SAMD09)

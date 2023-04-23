@@ -49,6 +49,7 @@ enum {
 	AO_NEOPIXEL,
 	AO_KEYPAD,
 	AO_ENCODER,
+	AO_BLINKY,
 };
 
 // Higher value corresponds to higher priority.
@@ -70,6 +71,7 @@ enum
 	PRIO_NEOPIXEL	= 20,
 	PRIO_KEYPAD		= 18,
 	PRIO_ENCODER	= 17,
+	PRIO_BLINK      = 16,
 };
 
 

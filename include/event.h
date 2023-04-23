@@ -164,6 +164,12 @@ enum {
 	ENCODER_READ_REG_REQ,
 	ENCODER_WRITE_REG_REQ,
 
+    BLINK_START_REQ,
+    BLINK_START_CFM,
+    BLINK_STOP_REQ,
+    BLINK_STOP_CFM,
+    BLINK_TIMER,
+
     MAX_PUB_SIG
 };
 
@@ -800,6 +806,20 @@ class EncoderWriteRegReq : public Evt {
 	private:
 	uint8_t _reg;
 	int32_t _value;
+};
+
+//* ==========================  BLINK ======================= *//
+
+class BlinkStartCfm : public ErrorEvt {
+	public:
+	BlinkStartCfm(uint16_t seq, Error error, Reason reason = 0) :
+	ErrorEvt(BLINK_START_CFM, seq, error, reason) {}
+};
+
+class BlinkStopCfm : public ErrorEvt {
+	public:
+	BlinkStopCfm(uint16_t seq, Error error, Reason reason = 0) :
+	ErrorEvt(BLINK_STOP_CFM, seq, error, reason) {}
 };
 
 #endif

@@ -35,6 +35,7 @@
 #include "AOKeypad.h"
 #include "AOUSB.h"
 #include "AOEncoder.h"
+#include "AOBlinky.h"
 
 #include "bsp_gpio.h"
 
@@ -110,6 +111,10 @@ static AOUSB usb;
 
 #if CONFIG_ENCODER
 static AOEncoder encoder;
+#endif
+
+#if CONFIG_BLINK
+static AOBlinky blink;
 #endif
 
 int main(void)
@@ -192,6 +197,10 @@ int main(void)
 
 #if CONFIG_ENCODER
 	encoder.Start(PRIO_ENCODER);
+#endif
+
+#if CONFIG_BLINK
+	blink.Start(PRIO_BLINK);
 #endif
 	
 	//publish a start request
