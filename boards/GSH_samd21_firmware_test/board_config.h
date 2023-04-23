@@ -6,17 +6,18 @@
 //override default I2C addr
 #define CONFIG_I2C_SLAVE_ADDR 0x2E
 
+#define CONFIG_NO_ADDR 1
 #define CONFIG_NO_ACTIVITY_LED
 #define CONFIG_NO_EEPROM
 
-#define CONFIG_ADDR_2 1
-#define CONFIG_ADDR_3 1
-#define CONFIG_ADDR_4 1
-#define PIN_ADDR_0 17
-#define PIN_ADDR_1 16
-#define PIN_ADDR_2 15
-#define PIN_ADDR_3 14
-#define PIN_ADDR_4 11
+// #define CONFIG_ADDR_2 1
+// #define CONFIG_ADDR_3 1
+// #define CONFIG_ADDR_4 1
+// #define PIN_ADDR_0 17
+// #define PIN_ADDR_1 16
+// #define PIN_ADDR_2 15
+// #define PIN_ADDR_3 14
+// #define PIN_ADDR_4 11
 
 //* ============== POOL SIZES =================== *//
 #define	EVT_SIZE_SMALL 16
@@ -64,6 +65,23 @@
 //* ============== I2C SLAVE =================== *//
 #define CONFIG_I2C_SLAVE 1
 
+//override default mux
+#define CONFIG_I2C_SLAVE_MUX 2
+
+//#define CONFIG_I2C_SLAVE_FLOW_CONTROL 1
+
+//override the default pins
+//#define CONFIG_I2C_SLAVE_PIN_SDA 0
+//#define CONFIG_I2C_SLAVE_PIN_SCL 1
+
+
+#define CONFIG_I2C_SLAVE_SERCOM SERCOM3
+#define CONFIG_I2C_SLAVE_HANDLER SERCOM3_Handler
+#define CONFIG_I2C_SLAVE_IRQn SERCOM3_IRQn
+
+
+
+
 //* ============== SERCOM =================== *//
 #define CONFIG_SERCOM0 0
 #define CONFIG_SERCOM1 0
@@ -78,12 +96,36 @@
 #define CONFIG_DAP 0
 
 //* =========== NEOPIXEL ================ *//
-#define CONFIG_NEOPIXEL 1
+#define CONFIG_NEOPIXEL 0
 
 #define CONFIG_NEOPIXEL_BUF_MAX (16*4)
 
+//* =========== BLINK ================ *//
+#define CONFIG_BLINK 1
+#define PIN_ACTIVITY_LED 17
+
+//* ============== ENCODER =================== *//
+#define CONFIG_ENCODER 1
+#define CONFIG_NUM_ENCODERS 1
+
+#define CONFIG_ENCODER0_A_PIN 2
+#define CONFIG_ENCODER0_B_PIN 4
+
+// #define CONFIG_ENCODER1_A_PIN 9
+// #define CONFIG_ENCODER1_B_PIN 4
+//
+// #define CONFIG_ENCODER2_A_PIN 5
+// #define CONFIG_ENCODER2_B_PIN 2
+//
+// #define CONFIG_ENCODER3_A_PIN 11
+// #define CONFIG_ENCODER3_B_PIN 10
+//
+#define CONFIG_ENCODER_HANDLER TC3_Handler
+#define CONFIG_ENCODER_IRQn TC3_IRQn
+#define CONFIG_ENCODER_TC TC3
+
 //* =========== KEYPAD ================ *//
-#define CONFIG_KEYPAD 1
+#define CONFIG_KEYPAD 0
 
 #define CONFIG_KEYPAD_ROW0 1
 #define CONFIG_KEYPAD_ROW1 1

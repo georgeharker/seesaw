@@ -57,6 +57,12 @@ using namespace FW;
 #ifdef CONFIG_ENCODER3_A_PIN
 #define ENCODER3_INPUT_MASK ((1UL << CONFIG_ENCODER3_A_PIN) | (1UL << CONFIG_ENCODER3_B_PIN))
 #endif
+#ifdef CONFIG_ENCODER4_A_PIN
+#define ENCODER4_INPUT_MASK ((1UL << CONFIG_ENCODER4_A_PIN) | (1UL << CONFIG_ENCODER4_B_PIN))
+#endif
+#ifdef CONFIG_ENCODER5_A_PIN
+#define ENCODER5_INPUT_MASK ((1UL << CONFIG_ENCODER5_A_PIN) | (1UL << CONFIG_ENCODER5_B_PIN))
+#endif
 
 
 volatile int32_t AOEncoder::m_value[CONFIG_NUM_ENCODERS];
@@ -153,6 +159,12 @@ QState AOEncoder::Stopped(AOEncoder * const me, QEvt const * const e) {
 #endif
 #ifdef ENCODER3_INPUT_MASK
             mask |= ENCODER3_INPUT_MASK;
+#endif
+#ifdef ENCODER4_INPUT_MASK
+            mask |= ENCODER4_INPUT_MASK;
+#endif
+#ifdef ENCODER5_INPUT_MASK
+            mask |= ENCODER5_INPUT_MASK;
 #endif
             gpio_dirclr_bulk(PORTA, mask);
 			gpio_pullenset_bulk(mask);
@@ -294,6 +306,12 @@ void CONFIG_ENCODER_HANDLER( void ) {
 #ifdef ENCODER3_INPUT_MASK
     mask |= ENCODER3_INPUT_MASK;
 #endif
+#ifdef ENCODER4_INPUT_MASK
+    mask |= ENCODER4_INPUT_MASK;
+#endif
+#ifdef ENCODER5_INPUT_MASK
+    mask |= ENCODER5_INPUT_MASK;
+#endif
     uint32_t in = gpio_read_bulk() & mask;
 
     for (uint8_t encodernum=0; encodernum<CONFIG_NUM_ENCODERS; encodernum++) {
@@ -318,6 +336,16 @@ void CONFIG_ENCODER_HANDLER( void ) {
 #if defined(CONFIG_ENCODER3_A_PIN)
       if (encodernum == 3) {
         enc_cur_pos |= ((BIT_IS_CLEAR(in, CONFIG_ENCODER3_A_PIN)) << 0) | ((BIT_IS_CLEAR(in, CONFIG_ENCODER3_B_PIN)) << 1);      
+      }
+#endif
+#if defined(CONFIG_ENCODER4_A_PIN)
+      if (encodernum == 4) {
+        enc_cur_pos |= ((BIT_IS_CLEAR(in, CONFIG_ENCODER4_A_PIN)) << 0) | ((BIT_IS_CLEAR(in, CONFIG_ENCODER4_B_PIN)) << 1);      
+      }
+#endif
+#if defined(CONFIG_ENCODER5_A_PIN)
+      if (encodernum == 5) {
+        enc_cur_pos |= ((BIT_IS_CLEAR(in, CONFIG_ENCODER5_A_PIN)) << 0) | ((BIT_IS_CLEAR(in, CONFIG_ENCODER5_B_PIN)) << 1);      
       }
 #endif
 
