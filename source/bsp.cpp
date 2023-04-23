@@ -162,7 +162,10 @@ void QF::onStartup(void) {
     // assigning all priority bits for preemption-prio. and none to sub-prio.
     //NVIC_SetPriorityGrouping(0U);
 	
-	NVIC_SetPriority(PendSV_IRQn, 0xFF);
+    // Leave PENDSV_PRIO,SVCALL_PRIO as qxk sets them up as 0xFF
+	//NVIC_SetPriority(PendSV_IRQn, PENDSV_PRIO);
+	//NVIC_SetPriority(SVCall_IRQn, SVCALL_PRIO);
+
 	SysTick_Config(SystemCoreClock / BSP_TICKS_PER_SEC);
 	NVIC_SetPriority(SysTick_IRQn, SYSTICK_PRIO);
 #if CONFIG_I2C_SLAVE
@@ -208,6 +211,9 @@ void QF::onStartup(void) {
 
     // enable IRQs...
     NVIC_EnableIRQ(SysTick_IRQn);
+    // PendSV and SVCall must be enabled for QP to work correctly.
+    NVIC_EnableIRQ(PendSV_IRQn);
+    NVIC_EnableIRQ(SVCall_IRQn);
 	//NVIC_EnableIRQ(NVMCTRL_IRQn);
 #if CONFIG_I2C_SLAVE
 	NVIC_EnableIRQ(CONFIG_I2C_SLAVE_IRQn);

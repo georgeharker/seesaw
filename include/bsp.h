@@ -46,6 +46,8 @@ Q_ASSERT_COMPILE(MAX_KERNEL_UNAWARE_CMSIS_PRI <= QF_AWARE_ISR_CMSIS_PRI);
 
 // Lower numerical value indicates higher priority.
 enum KernelAwareISRs {
+    PENDSV_PRIO            = 0xFF,
+    SVCALL_PRIO            = 0xFF,
     SYSTICK_PRIO            = QF_AWARE_ISR_CMSIS_PRI,
 	I2C_SLAVE_ISR_PRIO		= QF_AWARE_ISR_CMSIS_PRI + 1,
 	SPI_SLAVE_ISR_PRIO		= QF_AWARE_ISR_CMSIS_PRI + 1,
