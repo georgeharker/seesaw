@@ -97,6 +97,7 @@ SOURCES = $(COMMON_SRC) \
 	source/event.cpp \
 	source/AOADC.cpp \
 	source/AODAC.cpp \
+	source/AODAP.cpp \
 	source/AOTouch.cpp \
 	source/AOInterrupt.cpp \
 	source/AOSERCOM.cpp \

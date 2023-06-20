@@ -486,12 +486,29 @@
 
 //* ============== DAP =================== *//
 
-	#define CONFIG_DAP_SWCLK 11
-	#define CONFIG_DAP_SWDIO 10
-	#define CONFIG_DAP_TDI 19
-	#define CONFIG_DAP_TDO 20
-	#define CONFIG_DAP_nTRST 21
-	#define CONFIG_DAP_nRESET 14
+#ifndef CONFIG_DAP_SWCLK
+#define CONFIG_DAP_SWCLK 11
+#endif
+
+#ifndef CONFIG_DAP_SWDIO
+#define CONFIG_DAP_SWDIO 10
+#endif
+
+#ifndef CONFIG_DAP_TDI
+#define CONFIG_DAP_TDI 19
+#endif
+
+#ifndef CONFIG_DAP_TDO
+#define CONFIG_DAP_TDO 20
+#endif
+
+#ifndef CONFIG_DAP_nTRST
+#define CONFIG_DAP_nTRST 21
+#endif
+
+#ifndef CONFIG_DAP_nRESET
+#define CONFIG_DAP_nRESET 14
+#endif
 	
 //* =========== NEOPIXEL ================ *//
 
@@ -537,13 +554,28 @@
 #define CONFIG_KEYPAD_ROW1 0
 #endif
 
-
 #ifndef CONFIG_KEYPAD_ROW2
 #define CONFIG_KEYPAD_ROW2 0
 #endif
 
 #ifndef CONFIG_KEYPAD_ROW3
 #define CONFIG_KEYPAD_ROW3 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW4
+#define CONFIG_KEYPAD_ROW4 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW5
+#define CONFIG_KEYPAD_ROW5 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW6
+#define CONFIG_KEYPAD_ROW6 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW7
+#define CONFIG_KEYPAD_ROW7 0
 #endif
 
 #ifndef CONFIG_KEYPAD_COL0
@@ -562,6 +594,22 @@
 #define CONFIG_KEYPAD_COL3 0
 #endif
 
+#ifndef CONFIG_KEYPAD_COL4
+#define CONFIG_KEYPAD_COL4 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL5
+#define CONFIG_KEYPAD_COL5 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL6
+#define CONFIG_KEYPAD_COL6 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL7
+#define CONFIG_KEYPAD_COL7 0
+#endif
+
 #ifndef CONFIG_KEYPAD_ROW0_PIN
 #define CONFIG_KEYPAD_ROW0_PIN 0
 #endif
@@ -578,6 +626,22 @@
 #define CONFIG_KEYPAD_ROW3_PIN 0
 #endif
 
+#ifndef CONFIG_KEYPAD_ROW4_PIN
+#define CONFIG_KEYPAD_ROW4_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW5_PIN
+#define CONFIG_KEYPAD_ROW5_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW6_PIN
+#define CONFIG_KEYPAD_ROW6_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW7_PIN
+#define CONFIG_KEYPAD_ROW7_PIN 0
+#endif
+
 #ifndef CONFIG_KEYPAD_COL0_PIN
 #define CONFIG_KEYPAD_COL0_PIN 0
 #endif
@@ -592,6 +656,90 @@
 
 #ifndef CONFIG_KEYPAD_COL3_PIN
 #define CONFIG_KEYPAD_COL3_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL4_PIN
+#define CONFIG_KEYPAD_COL4_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL5_PIN
+#define CONFIG_KEYPAD_COL5_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL6_PIN
+#define CONFIG_KEYPAD_COL6_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_COL7_PIN
+#define CONFIG_KEYPAD_COL7_PIN 0
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW0_PORTA
+#define CONFIG_KEYPAD_ROW0_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW1_PORTA
+#define CONFIG_KEYPAD_ROW1_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW2_PORTA
+#define CONFIG_KEYPAD_ROW2_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW3_PORTA
+#define CONFIG_KEYPAD_ROW3_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW4_PORTA
+#define CONFIG_KEYPAD_ROW4_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW5_PORTA
+#define CONFIG_KEYPAD_ROW5_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW6_PORTA
+#define CONFIG_KEYPAD_ROW6_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_ROW7_PORTA
+#define CONFIG_KEYPAD_ROW7_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL0_PORTA
+#define CONFIG_KEYPAD_COL0_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL1_PORTA
+#define CONFIG_KEYPAD_COL1_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL2_PORTA
+#define CONFIG_KEYPAD_COL2_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL3_PORTA
+#define CONFIG_KEYPAD_COL3_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL4_PORTA
+#define CONFIG_KEYPAD_COL4_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL5_PORTA
+#define CONFIG_KEYPAD_COL5_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL6_PORTA
+#define CONFIG_KEYPAD_COL6_PORTA 1
+#endif
+
+#ifndef CONFIG_KEYPAD_COL7_PORTA
+#define CONFIG_KEYPAD_COL7_PORTA 1
+#endif
+
+#ifndef KEYPAD_SCAN_ROWS
+#define KEYPAD_SCAN_ROWS 1
 #endif
 
 //* =========== ENCODER ================ *//

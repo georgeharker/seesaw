@@ -176,6 +176,7 @@ QState AODAP::Started(AODAP * const me, QEvt const * const e) {
 			
 			Evt *evt = new DelegateDataReady(req.getRequesterId(), m_rxFifo);
 			QF::PUBLISH(evt, me);
+			status = Q_HANDLED();
 			break;
 		}
         default: {
