@@ -307,12 +307,12 @@ QState AOKeypad::Stopped(AOKeypad * const me, QEvt const * const e) {
             //set inputs
             uint32_t mask = (uint32_t)KEYPAD_INPUT_MASK_PORTA;
 			gpio_dirclr_bulk(PORTA, mask);
-			gpio_pullenset_bulk(mask);
+			gpio_pullenset_bulk(mask, PORTA);
 			gpio_outclr_bulk(PORTA, mask);
 
             mask = (uint32_t)KEYPAD_INPUT_MASK_PORTB;
 			gpio_dirclr_bulk(PORTB, mask);
-			gpio_pullenset_bulk(mask);
+			gpio_pullenset_bulk(mask, PORTB);
 			gpio_outclr_bulk(PORTB, mask);
 
             //set outputs
@@ -386,9 +386,16 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             for(int i=0; i<KEYPAD_MAX_COLS; i++){
                 if((1 << i) & KEYPAD_ACTIVE_COLS){
             #endif
+                    bool ouput_is_port_a = true;
                     //set the row high
-                    gpio_outset_bulk(PORTA, keypad_output_masks_a[i]);
-                    gpio_outset_bulk(PORTB, keypad_output_masks_b[i]);
+                    if (keypad_output_masks_a[i]) {
+                        gpio_outset_bulk(PORTA, keypad_output_masks_a[i]);
+                    } else {
+                        Q_ASSERT(keypad_output_masks_b[i]);
+                        gpio_outset_bulk(PORTB, keypad_output_masks_b[i]);
+                        ouput_is_port_a = false;
+                    }
+
                     //short delay
                     for(int __tmr = 0; __tmr<100; __tmr++) __asm__ volatile ("NOP;");
                     //read everything at once
@@ -405,6 +412,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                             val = (ina & keypad_input_masks_a[j]) > 0 ||
                                   (inb & keypad_input_masks_b[j]) > 0;
 
+                            keyevent.bit.EDGE = 0;
                             #if KEYPAD_SCAN_ROWS
                             keyevent.bit.NUM = KEYPAD_EVENT(i, j);
                             #else
@@ -433,8 +441,11 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                         }
                     }
                     //set the row back low
-                    gpio_outclr_bulk(PORTA, keypad_output_masks_a[i]);
-                    gpio_outclr_bulk(PORTB, keypad_output_masks_b[i]);
+                    if (ouput_is_port_a) {
+                        gpio_outclr_bulk(PORTA, keypad_output_masks_a[i]);
+                    } else {
+                        gpio_outclr_bulk(PORTB, keypad_output_masks_b[i]);
+                    }
                 }
             }
 
