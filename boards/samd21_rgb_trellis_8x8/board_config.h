@@ -58,7 +58,7 @@
 
 //* ============== INTERRUPT =================== *//
 #define CONFIG_INTERRUPT 1
-#define CONFIG_INTERRUPT_PIN 27
+#define CONFIG_INTERRUPT_PIN 21
 
 #define CONFIG_INTERRUPT_OPEN_DRAIN 1
 
@@ -69,6 +69,7 @@
 #define CONFIG_I2C_SLAVE_MUX 2
 
 //#define CONFIG_I2C_SLAVE_FLOW_CONTROL 1
+#define CONFIG_I2C_SLAVE_FLOW_CONTROL_PIN 20
 
 //override the default pins
 #define CONFIG_I2C_SLAVE_PIN_SDA 22
@@ -99,8 +100,8 @@
 #define CONFIG_DAP_SWDIO 31
 #define CONFIG_DAP_TDI 19
 #define CONFIG_DAP_TDO 20
-#define CONFIG_DAP_nTRST 21 /*??*/
-#define CONFIG_DAP_nRESET 22 /*??*/ 
+#define CONFIG_DAP_nTRST 1 /*??*/
+#define CONFIG_DAP_nRESET 0 /*??*/ 
 
 //* =========== NEOPIXEL ================ *//
 #define CONFIG_NEOPIXEL 1
@@ -189,5 +190,32 @@
 #define CONFIG_KEYPAD_ROW7_PORTA 1
 
 #define KEYPAD_SCAN_ROWS 0
+
+
+//* ============== SWO =================== *//
+
+// specify PB02 as 32+2
+
+#define CONFIG_LOG_SERCOM SERCOM5
+#define CONFIG_LOG_UART_PIN_TX 34
+#define CONFIG_LOG_UART_PIN_TX_MUX 3
+
+#define CONFIG_LOG_UART_PAD_TX UART_TX_PAD_0
+#define CONFIG_LOG_UART_PAD_RX SERCOM_RX_PAD_3
+
+#define CONFIG_LOG_UART_BAUD_RATE 115200
+#define CONFIG_LOG_UART_CHAR_SIZE UART_CHAR_SIZE_8_BITS
+
+#define CONFIG_LOG_UART_PARITY SERCOM_NO_PARITY
+
+#define CONFIG_LOG_UART_STOP_BIT SERCOM_STOP_BIT_1
+
+
+#define CONFIG_SWO_SERCOM SERCOM5
+#define CONFIG_SWO_HANDLER SERCOM5_Handler
+#define CONFIG_SWO_IRQn SERCOM5_IRQn
+
+
+//#define ENABLE_LOGGING 1
 
 #endif
