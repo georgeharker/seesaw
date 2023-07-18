@@ -177,6 +177,18 @@ inline void enableInterruptsWIRE( Sercom * sercom )
                               SERCOM_I2CS_INTENSET_DRDY ;   // Data Ready
 }
 
+inline void disableDataReadyInterruptWIRE( Sercom * sercom )
+{
+    // clear the interrupt register
+    sercom->I2CS.INTENCLR.reg = SERCOM_I2CS_INTENCLR_DRDY ;   // Data Ready
+}
+
+inline void enableDataReadyInterruptWIRE( Sercom * sercom )
+{
+    // clear the interrupt register
+    sercom->I2CS.INTENSET.reg = SERCOM_I2CS_INTENCLR_DRDY ;   // Data Ready
+}
+
 inline void disableWIRE(Sercom *sercom)
 {
 	disableInterruptsWIRE( sercom );

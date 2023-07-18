@@ -52,6 +52,7 @@ static Fifo *m_defaultOutFifo;
 static volatile bool slave_busy;
 
 static volatile uint8_t bytes_received, high_byte, low_byte;
+static volatile uint8_t bytes_send_pending;
 
 #if CONFIG_I2C_SLAVE_FLOW_CONTROL
 #if CONFIG_I2C_SLAVE_FLOW_CONTROL_PIN >= 32
@@ -82,6 +83,8 @@ static volatile uint8_t bytes_received, high_byte, low_byte;
 #else
 #define FLOW_CONTROL_INIT
 #endif
+
+#define ISR_LOG 0
 
 I2CSlave::I2CSlave( Sercom *sercom) :
     QActive((QStateHandler)&I2CSlave::InitialPseudoState), 
@@ -230,6 +233,7 @@ QState I2CSlave::Stopped(I2CSlave * const me, QEvt const * const e) {
 			m_defaultOutFifo = req.getOutFifo();
 			m_outFifo = m_defaultOutFifo;
 			bytes_received = 0;
+            bytes_send_pending = 0;
 			
 			m_inFifo->Reset();
 			m_outFifo->Reset();
@@ -286,7 +290,10 @@ QState I2CSlave::Started(I2CSlave * const me, QEvt const * const e) {
 			DelegateDataReady const &req = static_cast<DelegateDataReady const &>(*e);
 			
 			//a timeout must have occured, toss out any data
-			if(req.getRequesterId() == me->m_id){
+            
+            PRINT("WARNING i2c timeout");
+			
+            if(req.getRequesterId() == me->m_id){
 				if(req.getFifo() != NULL){
 					Fifo * f = req.getFifo();
 					f->Reset();
@@ -312,8 +319,13 @@ QState I2CSlave::Idle(I2CSlave * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             LOG_EVENT(e);
 			
-			slave_busy = false;
-			FLOW_CONTROL_HIGH
+            PRINT("Enable DRDY Interrupt 1");
+            
+            enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
+			
+            slave_busy = false;
+			
+            FLOW_CONTROL_HIGH
 			
             status = Q_HANDLED();
             break;
@@ -335,13 +347,19 @@ QState I2CSlave::Idle(I2CSlave * const me, QEvt const * const e) {
 			
 			I2CSlaveReceive const &req = static_cast<I2CSlaveReceive const &>(*e);
 			
+            PRINT("I2C RECV 0x%0x 0x%0x (%d bytes)", req.getHighByte(), req.getLowByte(), req.getLen());
+
 			if((req.getLowByte() > 0 || req.getHighByte() > 0) && req.getLen() > 0){
 				Evt *evt = new DelegateProcessCommand(me->m_id, req.getHighByte(), req.getLowByte(), req.getLen(), m_inFifo);
 				QF::PUBLISH(evt, me);
+
+                PRINT("Enable DRDY Interrupt 2");
+                enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
 				FLOW_CONTROL_HIGH
 				status = Q_HANDLED();
 			}
 			else if(req.getLowByte() > 0 || req.getHighByte() > 0) {
+                // command with no data
 				m_defaultOutFifo->Reset();	
 				Evt *evt = new DelegateProcessCommand(me->m_id, req.getHighByte(), req.getLowByte(), 0, m_defaultOutFifo);
 				QF::PUBLISH(evt, me);
@@ -383,8 +401,17 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
 			DelegateDataReady const &req = static_cast<DelegateDataReady const &>(*e);
 			if(req.getRequesterId() == me->m_id){
 				if(req.getFifo() != NULL){
-					 m_outFifo = req.getFifo();
+					m_outFifo = req.getFifo();
+                    PRINT("i2c delegate data ready %d bytes", m_outFifo->GetUsedCount());
 				}
+                
+                // we got to the response interrupt too early, service now.
+                bytes_send_pending = m_outFifo->GetUsedCount();
+
+                PRINT("Enable DRDY Interrupt 0 %d", bytes_send_pending);
+                
+                enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
+
 				status = Q_TRAN(&I2CSlave::Idle);
 			}
 			else
@@ -429,18 +456,39 @@ extern "C" {
 		if( isAddressMatch( CONFIG_I2C_SLAVE_SERCOM ) && slave_busy ){
 			prepareNackBitWIRE(CONFIG_I2C_SLAVE_SERCOM);
 			prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
+            #if ISR_LOG
+            PRINT("AMATCH NACK");
+            #endif
 		}
 		else if(isStopDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM ) ||
 		(isAddressMatch( CONFIG_I2C_SLAVE_SERCOM ) && isRestartDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM ) && !isMasterReadOperationWIRE( CONFIG_I2C_SLAVE_SERCOM ))) //Stop or Restart detected
 		{
 		    FLOW_CONTROL_LOW
+            
+            if (high_byte > 0 || low_byte > 0) {
+                #if ISR_LOG
+                PRINT("Disable DRDY Interrupt");
+                #endif
+                disableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
+            }
 			prepareAckBitWIRE(CONFIG_I2C_SLAVE_SERCOM);
-			prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
+		    prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
 			
 			I2CSlave::ReceiveCallback(high_byte, low_byte, (bytes_received > 0 ? bytes_received - 2 : 0) );
 			high_byte = 0;
 			low_byte = 0;
 			bytes_received = 0;
+            
+        
+            #if ISR_LOG
+            bool ca = isStopDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM );
+            bool cb = isAddressMatch( CONFIG_I2C_SLAVE_SERCOM ) && isRestartDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM ) && !isMasterReadOperationWIRE( CONFIG_I2C_SLAVE_SERCOM );
+            bool cb1 = isAddressMatch( CONFIG_I2C_SLAVE_SERCOM );
+            bool cb2 = isRestartDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM );
+            bool cb3 = !isMasterReadOperationWIRE( CONFIG_I2C_SLAVE_SERCOM );
+            
+            PRINT("PREC/RESTART immed %d - %d %d (%d %d %d)", bytes_received, ca, cb, cb1, cb2, cb3);
+            #endif
 		}
 		else if(isAddressMatch(CONFIG_I2C_SLAVE_SERCOM))  //Address Match
 		{
@@ -448,20 +496,45 @@ extern "C" {
 			prepareAckBitWIRE(CONFIG_I2C_SLAVE_SERCOM);
 			prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
 			bytes_received = 0;
-			
+            bytes_send_pending = 0;
+
+            #if ISR_LOG
+            PRINT("AMATCH ACK");
+            #endif
 		}
 		else if(isDataReadyWIRE(CONFIG_I2C_SLAVE_SERCOM))
 		{
 			if (isMasterReadOperationWIRE(CONFIG_I2C_SLAVE_SERCOM))
 			{
-				uint8_t c;
-				uint8_t count = m_outFifo->Read(&c, 1);
+                #if ISR_LOG
+                PRINT("DRDY read");
+                #endif
 
-				sendDataSlaveWIRE(CONFIG_I2C_SLAVE_SERCOM, (count ? c : 0xff) );
+                uint8_t c;
+                uint8_t count = m_outFifo->Read(&c, 1);
+
+                if (!count) {
+                    PRINT("Found empty buffer");    // FIXME: send an 0x02
+                }
+                #if ISR_LOG
+                PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
+                #endif
+
+                // FIXME: we're running out the buffer and then getting a zero count
+                sendDataSlaveWIRE(CONFIG_I2C_SLAVE_SERCOM, (count ? c : 0xff) );
+                if (--bytes_send_pending == 0) {
+                    prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x02);
+                } else {
+                    prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
+                }
 			}
 			else { //Received data
 				uint8_t c = readDataWIRE(CONFIG_I2C_SLAVE_SERCOM);
 				
+                #if ISR_LOG
+                PRINT("DRDY write");
+                #endif
+
 				bytes_received++;
 				
 				if(bytes_received == 1) high_byte = c;
