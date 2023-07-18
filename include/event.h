@@ -36,8 +36,10 @@
 
 #include "qpcpp.h"
 #include "qp_extras.h"
+#include "SeesawConfig.h"
 
 #ifdef ENABLE_LOGGING
+#include "fw_log.h"
 #define LOG_EVENT(e_)            Log::Event(me->m_name, __FUNCTION__, GetEvtName(e_->sig), e_->sig);
 #else
 #define LOG_EVENT(e_)
