@@ -125,6 +125,21 @@ inline bool isStopDetectedWIRE(  Sercom *sercom )
 	return sercom->I2CS.INTFLAG.bit.PREC;
 }
 
+inline void clearStopWIRE(  Sercom *sercom )
+{
+	sercom->I2CS.INTFLAG.bit.PREC = 1;
+}
+
+inline void clearDataReadyWIRE(  Sercom *sercom )
+{
+	sercom->I2CS.INTFLAG.bit.DRDY = 1;
+}
+
+inline void clearAddressMatchWIRE(  Sercom *sercom )
+{
+	sercom->I2CS.INTFLAG.bit.AMATCH = 1;
+}
+
 inline bool isRestartDetectedWIRE(  Sercom *sercom )
 {
 	return sercom->I2CS.STATUS.bit.SR;
