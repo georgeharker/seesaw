@@ -90,16 +90,27 @@ void Log::Write(char const *buf, uint32_t len) {
 
 
 void Log::Print(char const *format, ...) {
+#ifdef ENABLE_LOGGING
+    Q_ASSERT(format);
+    va_list argp;
+    va_start(argp, format);
 
+    char __buf[80];
+    snprintf(__buf,  sizeof(__buf), "[%li] ", GetSystemMs());
+    writeDataUART(CONFIG_LOG_SERCOM, __buf);
+    vsnprintf(__buf,  sizeof(__buf), format, argp);
+    writeDataUART(CONFIG_LOG_SERCOM, __buf);
+    writeDataUART(CONFIG_LOG_SERCOM, "\n");
+#endif
 }
 
 void Log::Event(char const *name, char const *func, const char *evtName, int sig) {
 #ifdef ENABLE_LOGGING
     Q_ASSERT(name && func && sig && evtName);
 
-    char __ms[20];
-    sprintf(__ms, "[%li] ", GetSystemMs());
-    writeDataUART(CONFIG_LOG_SERCOM, __ms);
+    char __buf[20];
+    snprintf(__buf, sizeof(__buf), "[%li] ", GetSystemMs());
+    writeDataUART(CONFIG_LOG_SERCOM, __buf);
     writeDataUART(CONFIG_LOG_SERCOM, name);
     writeDataUART(CONFIG_LOG_SERCOM, "(");
     writeDataUART(CONFIG_LOG_SERCOM, func);
@@ -111,11 +122,19 @@ void Log::Event(char const *name, char const *func, const char *evtName, int sig
 
 void Log::Debug(char const *name, char const *func, char const *format, ...) {
 #ifdef ENABLE_LOGGING
+    Q_ASSERT(name && func && format);
+    va_list argp;
+    va_start(argp, format);
+
+    char __buf[20];
+    snprintf(__buf, sizeof(__buf), "[%li] ", GetSystemMs());
+    writeDataUART(CONFIG_LOG_SERCOM, __buf);
     writeDataUART(CONFIG_LOG_SERCOM, name);
     writeDataUART(CONFIG_LOG_SERCOM, "(");
     writeDataUART(CONFIG_LOG_SERCOM, func);
     writeDataUART(CONFIG_LOG_SERCOM, "): ");
-    writeDataUART(CONFIG_LOG_SERCOM, format);
+    vsnprintf(__buf,  sizeof(__buf), format, argp);
+    writeDataUART(CONFIG_LOG_SERCOM, __buf);
     writeDataUART(CONFIG_LOG_SERCOM, "\n");
 #endif
 }

@@ -39,13 +39,8 @@
 
 namespace FW {
 
-//#define PRINT(format_, ...)      Log::Print(format_, ## __VA_ARGS__)
 #ifdef ENABLE_LOGGING
-#define PRINT(format_, ...) { \
-                        char __str[80]; \
-                        sprintf(__str, format_, ## __VA_ARGS__); \
-                        writeDataUART(CONFIG_LOG_SERCOM, __str); \
-                        }
+#define PRINT(format_, ...)      Log::Print(format_, ## __VA_ARGS__)
 #else
 #define PRINT(format_, ...)
 #endif
