@@ -41,10 +41,10 @@ using namespace QP;
 using namespace FW;
 
 enum {
-    KEYPAD_EDGE_HIGH = 0,
-    KEYPAD_EDGE_LOW,
-    KEYPAD_EDGE_FALLING,
+    KEYPAD_EDGE_FALLING = 0,
     KEYPAD_EDGE_RISING,
+    KEYPAD_EDGE_HIGH,
+    KEYPAD_EDGE_LOW,
 };
 
 union keyState {
