@@ -57,6 +57,8 @@ protected:
     static QState Started(System * const me, QEvt const * const e);
     static QState Idle(System * const me, QEvt const * const e);
     static QState Conflicted(System * const me, QEvt const * const e);
+
+    void DumpLogs();
 	
 	void HandleCfm(ErrorEvt const &e, uint8_t expectedCnt);
 
@@ -155,6 +157,11 @@ protected:
 #if CONFIG_KEYPAD
 	uint8_t m_keypadFifoStor[1 << KEYPAD_FIFO_ORDER];
 	Fifo m_keypadFifo;
+#endif
+
+#ifdef ENABLE_LOGGING
+	uint8_t m_loggingFifoStor[1 << LOGGING_FIFO_ORDER];
+	Fifo m_loggingFifo;
 #endif
 
 

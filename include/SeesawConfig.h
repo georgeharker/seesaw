@@ -504,6 +504,10 @@
 
 #define CONFIG_LOG_UART_STOP_BIT SERCOM_STOP_BIT_1
 
+#ifndef LOGGING_FIFO_ORDER
+#define LOGGING_FIFO_ORDER 12
+#endif
+
 //* ============== DAP =================== *//
 
 #ifndef CONFIG_DAP_SWCLK

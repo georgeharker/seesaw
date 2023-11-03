@@ -51,17 +51,15 @@ class Log {
 public:
     static void AddInterface(Fifo *fifo, QP::QSignal sig);
     static void DeleteInterface();
-    static void Write(char const *buf, uint32_t len);
+    static void DelayLogging();
+    static void UndelayLogging();
+    static void Write(char const *buf);
     static void Print(char const *format, ...);
     static void Event(char const *name, char const *func, const char *evtName, int sig);
     static void Debug(char const *name, char const *func, char const *format, ...);
     
 private:
-
-    enum {
-        BUF_LEN = 160,
-    };
-
+    static bool m_delay_logging;
     static Fifo *m_fifo;
     static QP::QSignal m_sig;
     static char const m_truncatedError[];

@@ -172,6 +172,8 @@ enum {
     BLINK_STOP_CFM,
     BLINK_TIMER,
 
+    LOGGING_PENDING,
+
     MAX_PUB_SIG
 };
 

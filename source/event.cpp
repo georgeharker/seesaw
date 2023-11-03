@@ -163,6 +163,8 @@ char const * const eventName[] = {
 	"BLINK_STOP_REQ",
 	"BLINK_STOP_CFM",
 	"BLINK_TIMER",
+
+    "LOGGING_PENDING",
 };  
   
 char const * GetEvtName(QP::QSignal sig) {

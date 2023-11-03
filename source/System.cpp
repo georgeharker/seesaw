@@ -95,6 +95,10 @@ System::System() :
 #if CONFIG_KEYPAD
 	,m_keypadFifo(m_keypadFifoStor, KEYPAD_FIFO_ORDER)
 #endif
+
+#ifdef ENABLE_LOGGING
+	,m_loggingFifo(m_loggingFifoStor, LOGGING_FIFO_ORDER)
+#endif
 	{}
 
 QState System::InitialPseudoState(System * const me, QEvt const * const e) {
@@ -183,6 +187,9 @@ QState System::InitialPseudoState(System * const me, QEvt const * const e) {
     me->subscribe(BLINK_STOP_CFM);
 #endif
 
+#ifdef ENABLE_LOGGING
+    me->subscribe(LOGGING_PENDING);
+#endif
 
     return Q_TRAN(&System::Root);
 }
@@ -347,6 +354,10 @@ QState System::Stopping(System * const me, QEvt const * const e) {
             QF::PUBLISH(evt, me);
 #endif
 
+#ifdef ENABLE_LOGGING
+            FW::Log::UndelayLogging();
+#endif
+
 			status = Q_HANDLED();
 			break;
 		}
@@ -377,6 +388,12 @@ QState System::Stopping(System * const me, QEvt const * const e) {
 			break;
 		}
 		
+#ifdef ENABLE_LOGGING
+        case LOGGING_PENDING: {
+            me->DumpLogs();
+			status = Q_HANDLED();
+        }
+#endif
 		case SYSTEM_FAIL:
 			Q_ASSERT(0);
 			status = Q_HANDLED();
@@ -402,6 +419,11 @@ QState System::Starting(System * const me, QEvt const * const e) {
 		case Q_ENTRY_SIG: {
 			LOG_EVENT(e);
 			me->m_cfmCount = 0;	
+
+#ifdef ENABLE_LOGGING
+            FW::Log::AddInterface(&me->m_loggingFifo, LOGGING_PENDING);
+            FW::Log::DelayLogging();
+#endif
 			
 			//start objects
 			Evt *evt = new Evt(DELEGATE_START_REQ);
@@ -538,6 +560,12 @@ QState System::Starting(System * const me, QEvt const * const e) {
 			break;
 		}
 
+#ifdef ENABLE_LOGGING
+        case LOGGING_PENDING: {
+            me->DumpLogs();
+			status = Q_HANDLED();
+        }
+#endif
 		case SYSTEM_FAIL:
 		//TODO:
 		
@@ -579,6 +607,12 @@ QState System::Started(System * const me, QEvt const * const e) {
             status = Q_HANDLED();
             break;
         }
+#ifdef ENABLE_LOGGING
+        case LOGGING_PENDING: {
+            me->DumpLogs();
+			status = Q_HANDLED();
+        }
+#endif
         default: {
             status = Q_SUPER(&System::Root);
             break;
@@ -612,6 +646,12 @@ QState System::Idle(System * const me, QEvt const * const e) {
                 status = Q_HANDLED();
 
             break;
+        }
+#endif
+#ifdef ENABLE_LOGGING
+        case LOGGING_PENDING: {
+            me->DumpLogs();
+			status = Q_HANDLED();
         }
 #endif
         case Q_EXIT_SIG: {
@@ -692,3 +732,12 @@ void System::HandleCfm(ErrorEvt const &e, uint8_t expectedCnt) {
 	}
 }
 
+void System::DumpLogs() {
+    int avail = m_loggingFifo.GetAvailCount();
+    for (int i = 0; i < avail; ++i) {
+        uint8_t c;
+        uint8_t count = m_loggingFifo.Read(&c, 1);
+        if (!count) break;
+        writeDataUART(CONFIG_LOG_SERCOM, c);
+    }
+}
