@@ -733,6 +733,7 @@ void System::HandleCfm(ErrorEvt const &e, uint8_t expectedCnt) {
 }
 
 void System::DumpLogs() {
+#ifdef ENABLE_LOGGING
     int avail = m_loggingFifo.GetAvailCount();
     for (int i = 0; i < avail; ++i) {
         uint8_t c;
@@ -740,4 +741,5 @@ void System::DumpLogs() {
         if (!count) break;
         writeDataUART(CONFIG_LOG_SERCOM, c);
     }
+#endif
 }
