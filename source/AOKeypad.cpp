@@ -307,12 +307,12 @@ QState AOKeypad::Stopped(AOKeypad * const me, QEvt const * const e) {
             //set inputs
             uint32_t mask = (uint32_t)KEYPAD_INPUT_MASK_PORTA;
 			gpio_dirclr_bulk(PORTA, mask);
-			gpio_pullenset_bulk(mask);
+			gpio_pullenset_bulk(mask, PORTA);
 			gpio_outclr_bulk(PORTA, mask);
 
             mask = (uint32_t)KEYPAD_INPUT_MASK_PORTB;
 			gpio_dirclr_bulk(PORTB, mask);
-			gpio_pullenset_bulk(mask);
+			gpio_pullenset_bulk(mask, PORTB);
 			gpio_outclr_bulk(PORTB, mask);
 
             //set outputs
@@ -378,7 +378,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             keyState *ks;
             uint32_t ina, inb;
             bool val;
-            keyEvent keyevent;
+            keyEvent2 keyevent;
             #if KEYPAD_SCAN_ROWS
             for(int i=0; i<KEYPAD_MAX_ROWS; i++){
                 if((1 << i) & KEYPAD_ACTIVE_ROWS){
@@ -386,9 +386,16 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             for(int i=0; i<KEYPAD_MAX_COLS; i++){
                 if((1 << i) & KEYPAD_ACTIVE_COLS){
             #endif
+                    bool ouput_is_port_a = true;
                     //set the row high
-                    gpio_outset_bulk(PORTA, keypad_output_masks_a[i]);
-                    gpio_outset_bulk(PORTB, keypad_output_masks_b[i]);
+                    if (keypad_output_masks_a[i]) {
+                        gpio_outset_bulk(PORTA, keypad_output_masks_a[i]);
+                    } else {
+                        Q_ASSERT(keypad_output_masks_b[i]);
+                        gpio_outset_bulk(PORTB, keypad_output_masks_b[i]);
+                        ouput_is_port_a = false;
+                    }
+
                     //short delay
                     for(int __tmr = 0; __tmr<100; __tmr++) __asm__ volatile ("NOP;");
                     //read everything at once
@@ -405,36 +412,41 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                             val = (ina & keypad_input_masks_a[j]) > 0 ||
                                   (inb & keypad_input_masks_b[j]) > 0;
 
+                            keyevent.bit.TYPE = KEYPAD_TYPE_KEY;
+                            keyevent.bit.key.EDGE = 0;
                             #if KEYPAD_SCAN_ROWS
-                            keyevent.bit.NUM = KEYPAD_EVENT(i, j);
+                            keyevent.bit.key.NUM = KEYPAD_EVENT(i, j);
                             #else
-                            keyevent.bit.NUM = KEYPAD_EVENT(j, i);
+                            keyevent.bit.key.NUM = KEYPAD_EVENT(j, i);
                             #endif
-                            ks = &me->m_state[keyevent.bit.NUM];
+                            ks = &me->m_state[keyevent.bit.key.NUM];
 
                             if(ks->bit.ACTIVE & KEYPAD_HIGH && val){
-                                keyevent.bit.EDGE = KEYPAD_EDGE_HIGH;
-                                me->m_fifo->Write(&keyevent.reg, 1);
+                                keyevent.bit.key.EDGE = KEYPAD_EDGE_HIGH;
+                                me->m_fifo->Write(keyevent.reg, 2);
                             }
                             if(ks->bit.ACTIVE & KEYPAD_LOW && !val){
-                                keyevent.bit.EDGE = KEYPAD_EDGE_LOW;
-                                me->m_fifo->Write(&keyevent.reg, 1);
+                                keyevent.bit.key.EDGE = KEYPAD_EDGE_LOW;
+                                me->m_fifo->Write(keyevent.reg, 2);
                             }
                             if(ks->bit.ACTIVE & KEYPAD_RISING && !ks->bit.STATE && val){
-                                keyevent.bit.EDGE = KEYPAD_EDGE_RISING;
-                                me->m_fifo->Write(&keyevent.reg, 1);
+                                keyevent.bit.key.EDGE = KEYPAD_EDGE_RISING;
+                                me->m_fifo->Write(keyevent.reg, 2);
                             }
                             if(ks->bit.ACTIVE & KEYPAD_FALLING && ks->bit.STATE && !val){
-                                keyevent.bit.EDGE = KEYPAD_EDGE_FALLING;
-                                me->m_fifo->Write(&keyevent.reg, 1);
+                                keyevent.bit.key.EDGE = KEYPAD_EDGE_FALLING;
+                                me->m_fifo->Write(keyevent.reg, 2);
                             }
 
                             ks->bit.STATE = val;
                         }
                     }
                     //set the row back low
-                    gpio_outclr_bulk(PORTA, keypad_output_masks_a[i]);
-                    gpio_outclr_bulk(PORTB, keypad_output_masks_b[i]);
+                    if (ouput_is_port_a) {
+                        gpio_outclr_bulk(PORTA, keypad_output_masks_a[i]);
+                    } else {
+                        gpio_outclr_bulk(PORTB, keypad_output_masks_b[i]);
+                    }
                 }
             }
 
@@ -457,7 +469,6 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             Fifo *dest = req.getDest();
 			uint8_t reg = req.getReg();
 
-            uint8_t c = 0;
             Evt *evt;
 
             if(reg == SEESAW_KEYPAD_FIFO){
@@ -472,20 +483,26 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                 evt = new DelegateDataReady(req.getRequesterId(), me->m_fifo);
             }
             else{
+                keyEvent2 keyevent;
+
                 switch (reg){
                     case SEESAW_KEYPAD_STATUS:
-                        c = me->m_status.reg;
+                        keyevent.bit.TYPE = KEYPAD_TYPE_STATUS;
+                        keyevent.bit.status.STATUS = me->m_status.reg;
                         break;
                     case SEESAW_KEYPAD_COUNT:
-                        c = me->m_fifo->GetUsedCount();
+                        keyevent.bit.TYPE = KEYPAD_TYPE_COUNT;
+                        // FIXME: is this stable for output size determination
+                        keyevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / 2;
                         break;
                     default:
+                        keyevent.bit.TYPE = KEYPAD_TYPE_INVALID;
                         break;
                 }
 
                 //return the read register in the default fifo
                 evt = new DelegateDataReady(req.getRequesterId());
-                dest->Write(&c, 1);
+                dest->Write(keyevent.reg, 2);
             }
 
             QF::PUBLISH(evt, me);

@@ -160,9 +160,9 @@ QState Delegate::Started(Delegate * const me, QEvt const * const e) {
 			uint8_t lowByte = req.getLowByte();
 			uint8_t len = req.getLen();
 			
-#ifdef ENABLE_LOGGING
-            PRINT("DELEGATE_PROCESS_COMMAND: (0x%x, 0x%x) %i\n", highByte, lowByte, len);
-#endif
+//#ifdef ENABLE_LOGGING
+//            PRINT("DELEGATE_PROCESS_COMMAND: (0x%x, 0x%x) %i\n", highByte, lowByte, len);
+//#endif
 
 			if(!len){
 				//we are reading

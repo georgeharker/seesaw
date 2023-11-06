@@ -33,6 +33,7 @@
 #include "qpcpp.h"
 #include "fw_pipe.h"
 #include "fw_log.h"
+#include "event.h"
 #include "SeesawConfig.h"
 #include "bsp_sercom.h"
 
@@ -46,6 +47,7 @@ char const Log::m_truncatedError[] = "<##TRUN##>";
 
 Fifo * Log::m_fifo = NULL;
 QSignal Log::m_sig = 0;
+bool Log::m_delay_logging = false;
 
 void Log::AddInterface(Fifo *fifo, QSignal sig) {
     FW_LOG_ASSERT(fifo && sig);
@@ -64,16 +66,22 @@ void Log::DeleteInterface() {
     QF_CRIT_EXIT(crit);
 }
 
-void Log::Write(char const *buf, uint32_t len) {    
-	/* DM:TODO: this
-    if (m_fifo) {
+void Log::DelayLogging() {
+    m_delay_logging = true;
+}
+void Log::UndelayLogging() {
+    m_delay_logging = false;
+}
+
+void Log::Write(char const *buf) {    
+    if (m_fifo && m_delay_logging) {
         bool status1 = false;
         bool status2 = false;
         if (m_fifo->IsTruncated()) {
             m_fifo->WriteNoCrit(reinterpret_cast<uint8_t const *>(m_truncatedError), CONST_STRING_LEN(m_truncatedError), &status1);
         }
         if (!m_fifo->IsTruncated()) {
-            m_fifo->WriteNoCrit(reinterpret_cast<uint8_t const *>(buf), len, &status2);
+            m_fifo->WriteNoCrit(reinterpret_cast<uint8_t const *>(buf), strlen(buf), &status2);
         }
         // Post MUST be outside critical section.
         if (status1 || status2) {
@@ -82,41 +90,51 @@ void Log::Write(char const *buf, uint32_t len) {
             QF::PUBLISH(evt, NULL);
         }
     } else {
-        // TODO remove. Test only - write to BSP usart directly.
-        //BspWrite(buf, len);
+        writeDataUART(CONFIG_LOG_SERCOM, buf);
     }
-	*/
 }
 
 
 void Log::Print(char const *format, ...) {
+#ifdef ENABLE_LOGGING
+    Q_ASSERT(format);
+    va_list argp;
+    va_start(argp, format);
 
+    char __fmt[80];
+    char __buf[80];
+    snprintf(__fmt,  sizeof(__fmt), "[%li] %s\n", GetSystemMs(), format);
+    vsnprintf(__buf,  sizeof(__buf), __fmt, argp);
+    Write(__buf);
+#endif
 }
 
 void Log::Event(char const *name, char const *func, const char *evtName, int sig) {
 #ifdef ENABLE_LOGGING
     Q_ASSERT(name && func && sig && evtName);
 
-    char __ms[20];
-    sprintf(__ms, "[%li] ", GetSystemMs());
-    writeDataUART(CONFIG_LOG_SERCOM, __ms);
-    writeDataUART(CONFIG_LOG_SERCOM, name);
-    writeDataUART(CONFIG_LOG_SERCOM, "(");
-    writeDataUART(CONFIG_LOG_SERCOM, func);
-    writeDataUART(CONFIG_LOG_SERCOM, "): ");
-    writeDataUART(CONFIG_LOG_SERCOM, evtName);
-    writeDataUART(CONFIG_LOG_SERCOM, "\n");
+    // Don't log logging events
+    if (sig == m_sig) return;
+
+    char __buf[80];
+    snprintf(__buf, sizeof(__buf), "[%li] %s (%s): %s\n", GetSystemMs(),
+             name, func, evtName);
+    Write(__buf);
 #endif
 }
 
 void Log::Debug(char const *name, char const *func, char const *format, ...) {
 #ifdef ENABLE_LOGGING
-    writeDataUART(CONFIG_LOG_SERCOM, name);
-    writeDataUART(CONFIG_LOG_SERCOM, "(");
-    writeDataUART(CONFIG_LOG_SERCOM, func);
-    writeDataUART(CONFIG_LOG_SERCOM, "): ");
-    writeDataUART(CONFIG_LOG_SERCOM, format);
-    writeDataUART(CONFIG_LOG_SERCOM, "\n");
+    Q_ASSERT(name && func && format);
+    va_list argp;
+    va_start(argp, format);
+
+    char __fmt[80];
+    char __buf[80];
+    snprintf(__buf, sizeof(__buf), "[%li] %s, (%s): %s\n", GetSystemMs(),
+             name, func, format);
+    vsnprintf(__buf,  sizeof(__buf), __fmt, argp);
+    Write(__buf);
 #endif
 }
 

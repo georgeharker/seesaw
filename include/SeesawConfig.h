@@ -471,18 +471,42 @@
 #endif
 
 //* ============== LOG =================== *//
-#define CONFIG_LOG_SERCOM SERCOM0
-#define CONFIG_LOG_UART_PIN_TX 4
-#define CONFIG_LOG_UART_PIN_TX_MUX 3
-#define CONFIG_LOG_UART_PAD_TX UART_TX_PAD_0
-#define CONFIG_LOG_UART_PAD_RX SERCOM_RX_PAD_3
 
+#ifndef CONFIG_LOG_SERCOM
+#define CONFIG_LOG_SERCOM SERCOM0
+#endif
+
+#ifndef CONFIG_LOG_UART_PIN_TX
+#define CONFIG_LOG_UART_PIN_TX 4
+#endif
+
+#ifndef CONFIG_LOG_UART_PIN_TX_MUX
+#define CONFIG_LOG_UART_PIN_TX_MUX 3
+#endif
+
+#ifndef CONFIG_LOG_UART_PAD_TX
+#define CONFIG_LOG_UART_PAD_TX UART_TX_PAD_0
+#endif
+
+#ifndef CONFIG_LOG_UART_PAD_RX
+#define CONFIG_LOG_UART_PAD_RX SERCOM_RX_PAD_3
+#endif
+
+#ifndef CONFIG_LOG_UART_BAUD_RATE
 #define CONFIG_LOG_UART_BAUD_RATE 115200
+#endif 
+
+#ifndef CONFIG_LOG_UART_CHAR_SIZE
 #define CONFIG_LOG_UART_CHAR_SIZE UART_CHAR_SIZE_8_BITS
+#endif
 
 #define CONFIG_LOG_UART_PARITY SERCOM_NO_PARITY
 
 #define CONFIG_LOG_UART_STOP_BIT SERCOM_STOP_BIT_1
+
+#ifndef LOGGING_FIFO_ORDER
+#define LOGGING_FIFO_ORDER 12
+#endif
 
 //* ============== DAP =================== *//
 
@@ -845,6 +869,8 @@
 #ifndef CONFIG_USBPIN_USB_DP
 #define CONFIG_USBPIN_USB_DP 25
 #endif
+
+// FIXME: wrong for row col pins
 
 #define CONFIG_GPIO_MASK (((unsigned long long) 0xFFFFFFFFFFFFFFFF) ^ ( ((uint64_t)CONFIG_USB << CONFIG_USBPIN_USB_DM) | ((uint64_t)CONFIG_USB << CONFIG_USBPIN_USB_DP) \
 	    | ((uint64_t)CONFIG_ADDR << PIN_ADDR_0) | ((uint64_t)CONFIG_ADDR << PIN_ADDR_1) \

@@ -57,6 +57,8 @@ protected:
     static QState Started(System * const me, QEvt const * const e);
     static QState Idle(System * const me, QEvt const * const e);
     static QState Conflicted(System * const me, QEvt const * const e);
+
+    void DumpLogs();
 	
 	void HandleCfm(ErrorEvt const &e, uint8_t expectedCnt);
 
@@ -81,8 +83,8 @@ protected:
 
 #if CONFIG_I2C_SLAVE
 	enum {
-		I2C_SLAVE_OUT_FIFO_ORDER = 5,
-		I2C_SLAVE_IN_FIFO_ORDER = 5,
+		I2C_SLAVE_OUT_FIFO_ORDER = 7,
+		I2C_SLAVE_IN_FIFO_ORDER = 7,
 	};
 	
 	uint8_t m_I2CSlaveOutFifoStor[1 << I2C_SLAVE_OUT_FIFO_ORDER];
@@ -155,6 +157,11 @@ protected:
 #if CONFIG_KEYPAD
 	uint8_t m_keypadFifoStor[1 << KEYPAD_FIFO_ORDER];
 	Fifo m_keypadFifo;
+#endif
+
+#ifdef ENABLE_LOGGING
+	uint8_t m_loggingFifoStor[1 << LOGGING_FIFO_ORDER];
+	Fifo m_loggingFifo;
 #endif
 
 

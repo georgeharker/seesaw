@@ -98,6 +98,15 @@ void BspInit() {
 		*/
 
 #ifdef ENABLE_LOGGING
+    uint8_t port = PORTA;
+    uint8_t pin = CONFIG_LOG_UART_PIN_TX;
+    if (CONFIG_LOG_UART_PIN_TX >= 32) {
+        pin -= 32;
+        port = PORTB;
+    }
+    gpio_dirset_bulk(port, 1<<pin);
+    gpio_pullenclr_bulk(1<<pin, port);
+
     pinPeripheral(CONFIG_LOG_UART_PIN_TX, CONFIG_LOG_UART_PIN_TX_MUX);
 
     initUART(CONFIG_LOG_SERCOM, SAMPLE_RATE_x16, CONFIG_LOG_UART_BAUD_RATE);
