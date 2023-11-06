@@ -355,7 +355,7 @@ QState System::Stopping(System * const me, QEvt const * const e) {
 #endif
 
 #ifdef ENABLE_LOGGING
-            FW::Log::UndelayLogging();
+            //FW::Log::UndelayLogging();
 #endif
 
 			status = Q_HANDLED();
@@ -392,6 +392,7 @@ QState System::Stopping(System * const me, QEvt const * const e) {
         case LOGGING_PENDING: {
             me->DumpLogs();
 			status = Q_HANDLED();
+            break;
         }
 #endif
 		case SYSTEM_FAIL:
@@ -564,6 +565,7 @@ QState System::Starting(System * const me, QEvt const * const e) {
         case LOGGING_PENDING: {
             me->DumpLogs();
 			status = Q_HANDLED();
+            break;
         }
 #endif
 		case SYSTEM_FAIL:
@@ -611,6 +613,7 @@ QState System::Started(System * const me, QEvt const * const e) {
         case LOGGING_PENDING: {
             me->DumpLogs();
 			status = Q_HANDLED();
+            break;
         }
 #endif
         default: {
@@ -652,6 +655,7 @@ QState System::Idle(System * const me, QEvt const * const e) {
         case LOGGING_PENDING: {
             me->DumpLogs();
 			status = Q_HANDLED();
+            break;
         }
 #endif
         case Q_EXIT_SIG: {

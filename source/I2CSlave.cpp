@@ -291,7 +291,9 @@ QState I2CSlave::Started(I2CSlave * const me, QEvt const * const e) {
 			
 			//a timeout must have occured, toss out any data
             
+            #if ISR_LOG
             PRINT("WARNING i2c timeout");
+            #endif
 			
             if(req.getRequesterId() == me->m_id){
 				if(req.getFifo() != NULL){
@@ -318,8 +320,10 @@ QState I2CSlave::Idle(I2CSlave * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             LOG_EVENT(e);
-			
+	
+            #if ISR_LOG
             PRINT("Enable DRDY Interrupt 1");
+            #endif
             
             enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
 			
@@ -347,13 +351,17 @@ QState I2CSlave::Idle(I2CSlave * const me, QEvt const * const e) {
 			
 			I2CSlaveReceive const &req = static_cast<I2CSlaveReceive const &>(*e);
 			
+            #if ISR_LOG
             PRINT("I2C RECV 0x%0x 0x%0x (%d bytes)", req.getHighByte(), req.getLowByte(), req.getLen());
+            #endif
 
 			if((req.getLowByte() > 0 || req.getHighByte() > 0) && req.getLen() > 0){
 				Evt *evt = new DelegateProcessCommand(me->m_id, req.getHighByte(), req.getLowByte(), req.getLen(), m_inFifo);
 				QF::PUBLISH(evt, me);
 
+                #if ISR_LOG
                 PRINT("Enable DRDY Interrupt 2");
+                #endif
                 enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
 				FLOW_CONTROL_HIGH
 				status = Q_HANDLED();
@@ -402,13 +410,17 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
 			if(req.getRequesterId() == me->m_id){
 				if(req.getFifo() != NULL){
 					m_outFifo = req.getFifo();
+                    #if ISR_LOG
                     PRINT("i2c delegate data ready %d bytes", m_outFifo->GetUsedCount());
+                    #endif
 				}
                 
                 // we got to the response interrupt too early, service now.
                 bytes_send_pending = m_outFifo->GetUsedCount();
 
+                #if ISR_LOG
                 PRINT("Enable DRDY Interrupt 0 %d", bytes_send_pending);
+                #endif
                 
                 enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
 
@@ -513,10 +525,10 @@ extern "C" {
                 uint8_t c;
                 uint8_t count = m_outFifo->Read(&c, 1);
 
+                #if ISR_LOG
                 if (!count) {
                     PRINT("Found empty buffer");    // FIXME: send an 0x02
                 }
-                #if ISR_LOG
                 PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
                 #endif
 
