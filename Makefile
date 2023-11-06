@@ -7,7 +7,8 @@ CXX=arm-none-eabi-g++
 ifeq ($(DEBUG), 1)
 ENABLE_LOGGING = -DENABLE_LOGGING
 else
-ENABLE_LOGGING =
+ENABLE_LOGGING = 
+#-DENABLE_LOGGING
 endif
 
 COMMON_FLAGS = -mthumb -mcpu=cortex-m0plus -Os -g3 -D$(CHIP_FAMILY) -D__$(CHIP_VARIANT)__ -DBOARD_$(BOARD_NAME) $(ENABLE_LOGGING)
