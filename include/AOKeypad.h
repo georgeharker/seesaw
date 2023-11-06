@@ -41,10 +41,17 @@ using namespace QP;
 using namespace FW;
 
 enum {
-    KEYPAD_EDGE_FALLING = 0,
-    KEYPAD_EDGE_RISING,
-    KEYPAD_EDGE_HIGH,
+    KEYPAD_TYPE_KEY = 0,
+    KEYPAD_TYPE_COUNT = 1,
+    KEYPAD_TYPE_STATUS = 2,
+    KEYPAD_TYPE_INVALID = 0xFF
+};
+
+enum {
+    KEYPAD_EDGE_HIGH = 0,
     KEYPAD_EDGE_LOW,
+    KEYPAD_EDGE_FALLING,
+    KEYPAD_EDGE_RISING
 };
 
 union keyState {
@@ -65,6 +72,26 @@ union keyEvent {
     } bit;
     uint8_t reg;
 };
+
+union keyEvent2 {
+    struct {
+        uint8_t TYPE: 8;
+        union {
+            struct {
+                uint8_t EDGE: 2;
+                uint8_t NUM: 6; //64 events max
+            } key;
+            struct {
+                uint8_t COUNT: 8;
+            } count;
+            struct {
+                uint8_t STATUS: 8;
+            } status;
+        };
+    } bit;
+    uint8_t reg[2];
+};
+// TYPE = COUNT,rem etc, count down or preamble n bytes, or END
 
 class AOKeypad : public QActive {
 public:

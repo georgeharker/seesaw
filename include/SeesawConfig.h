@@ -870,6 +870,8 @@
 #define CONFIG_USBPIN_USB_DP 25
 #endif
 
+// FIXME: wrong for row col pins
+
 #define CONFIG_GPIO_MASK (((unsigned long long) 0xFFFFFFFFFFFFFFFF) ^ ( ((uint64_t)CONFIG_USB << CONFIG_USBPIN_USB_DM) | ((uint64_t)CONFIG_USB << CONFIG_USBPIN_USB_DP) \
 	    | ((uint64_t)CONFIG_ADDR << PIN_ADDR_0) | ((uint64_t)CONFIG_ADDR << PIN_ADDR_1) \
 		| ((uint64_t)CONFIG_ADDR_2 << PIN_ADDR_2) | ((uint64_t)CONFIG_ADDR_3 << PIN_ADDR_3) \
