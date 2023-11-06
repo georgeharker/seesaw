@@ -8,8 +8,8 @@
 #include "fw_error.h"
 #include "SeesawConfig.h"
 
-#ifdef ENABLE_LOGGING
+//#ifdef ENABLE_LOGGING
 #include "fw_log.h"
-#endif
+//#endif
 
 #endif
