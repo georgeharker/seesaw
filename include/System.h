@@ -128,6 +128,10 @@ protected:
 	enum {
 		KEYPAD_FIFO_ORDER = 7,
 	};
+	
+    enum {
+		ENCODER_FIFO_ORDER = 7,
+	};
 
 #if CONFIG_SERCOM0
 	uint8_t m_sercom0RxFifoStor[1 << SERCOM_FIFO_ORDER];
@@ -157,6 +161,11 @@ protected:
 #if CONFIG_KEYPAD
 	uint8_t m_keypadFifoStor[1 << KEYPAD_FIFO_ORDER];
 	Fifo m_keypadFifo;
+#endif
+
+#if CONFIG_ENCODER
+	uint8_t m_encoderFifoStor[1 << ENCODER_FIFO_ORDER];
+	Fifo m_encoderFifo;
 #endif
 
 #ifdef ENABLE_LOGGING

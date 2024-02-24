@@ -771,6 +771,15 @@ class SPISlaveReceive : public Evt {
 };
 
 //* ==========================  ENCODER ======================= *//
+class EncoderStartReq : public Evt {
+	public:
+	EncoderStartReq(Fifo *fifo) :
+	Evt(ENCODER_START_REQ), _fifo(fifo) {}
+
+	Fifo *getFifo() const { return _fifo; }
+	private:
+	Fifo *_fifo;
+};
 
 class EncoderStartCfm : public ErrorEvt {
 	public:

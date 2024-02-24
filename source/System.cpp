@@ -96,6 +96,10 @@ System::System() :
 	,m_keypadFifo(m_keypadFifoStor, KEYPAD_FIFO_ORDER)
 #endif
 
+#if CONFIG_ENCODER
+	,m_encoderFifo(m_encoderFifoStor, ENCODER_FIFO_ORDER)
+#endif
+
 #ifdef ENABLE_LOGGING
 	,m_loggingFifo(m_loggingFifoStor, LOGGING_FIFO_ORDER)
 #endif
@@ -507,7 +511,7 @@ QState System::Starting(System * const me, QEvt const * const e) {
 #endif
 
 #if CONFIG_ENCODER
-            evt = new Evt(ENCODER_START_REQ);
+            evt = new EncoderStartReq(&me->m_encoderFifo);
             QF::PUBLISH(evt, me);
 #endif
 

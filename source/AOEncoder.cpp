@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * Copyright (C) Dean Miller
  * All rights reserved.
  *
@@ -220,7 +220,9 @@ QState AOEncoder::Stopped(AOEncoder * const me, QEvt const * const e) {
         case ENCODER_START_REQ: {
             LOG_EVENT(e);
 
-            m_outFifo = me->m_fifo;
+            EncoderStartReq const &r = static_cast<EncoderStartReq const &>(*e);
+			me->m_fifo = r.getFifo();
+            me->m_fifo->Reset();
 
             for (uint8_t encodernum=0; encodernum<CONFIG_NUM_ENCODERS; encodernum++) {
               AOEncoder::m_value[encodernum] = 0;

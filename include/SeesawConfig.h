@@ -791,13 +791,176 @@
 #define CONFIG_ENCODER_FREQ 5000
 #endif
 
+
+#ifndef CONFIG_ENCODER0
+#define CONFIG_ENCODER0 1
+#endif
+
+#ifndef CONFIG_ENCODER1
+#define CONFIG_ENCODER1 0
+#endif
+
+#ifndef CONFIG_ENCODER2
+#define CONFIG_ENCODER2 0
+#endif
+
+#ifndef CONFIG_ENCODER3
+#define CONFIG_ENCODER3 0
+#endif
+
+#ifndef CONFIG_ENCODER4
+#define CONFIG_ENCODER4 0
+#endif
+
+#ifndef CONFIG_ENCODER5
+#define CONFIG_ENCODER5 0
+#endif
+
+#ifndef CONFIG_ENCODER6
+#define CONFIG_ENCODER6 0
+#endif
+
+#ifndef CONFIG_ENCODER7
+#define CONFIG_ENCODER7 0
+#endif
+
+
 #ifndef CONFIG_ENCODER0_A_PIN
-#define CONFIG_ENCODER0_A_PIN 8
+#define CONFIG_ENCODER0_A_PIN 2
 #endif
 
 #ifndef CONFIG_ENCODER0_B_PIN
-#define CONFIG_ENCODER0_B_PIN 9
+#define CONFIG_ENCODER0_B_PIN 4
 #endif
+
+#ifndef CONFIG_ENCODER0_SW_PIN
+#define CONFIG_ENCODER0_SW_PIN 4
+#endif
+
+
+#ifndef CONFIG_ENCODER1_A_PIN
+#define CONFIG_ENCODER1_A_PIN 9
+#endif
+
+#ifndef CONFIG_ENCODER1_B_PIN
+#define CONFIG_ENCODER1_B_PIN 4
+#endif
+
+#ifndef CONFIG_ENCODER1_SW_PIN
+#define CONFIG_ENCODER1_SW_PIN 4
+#endif
+
+
+#ifndef CONFIG_ENCODER2_A_PIN
+#define CONFIG_ENCODER2_A_PIN 5
+#endif
+
+#ifndef CONFIG_ENCODER2_B_PIN
+#define CONFIG_ENCODER2_B_PIN 2
+#endif
+
+#ifndef CONFIG_ENCODER2_SW_PIN
+#define CONFIG_ENCODER2_SW_PIN 2
+#endif
+
+
+#ifndef CONFIG_ENCODER3_A_PIN
+#define CONFIG_ENCODER3_A_PIN 11
+#endif
+
+#ifndef CONFIG_ENCODER3_B_PIN
+#define CONFIG_ENCODER3_B_PIN 10
+#endif
+
+#ifndef CONFIG_ENCODER3_SW_PIN
+#define CONFIG_ENCODER3_SW_PIN 10
+#endif
+
+
+#ifndef CONFIG_ENCODER4_A_PIN
+#define CONFIG_ENCODER4_A_PIN 11
+#endif
+
+#ifndef CONFIG_ENCODER4_B_PIN
+#define CONFIG_ENCODER4_B_PIN 10
+#endif
+
+#ifndef CONFIG_ENCODER4_SW_PIN
+#define CONFIG_ENCODER4_SW_PIN 10
+#endif
+
+
+#ifndef CONFIG_ENCODER5_A_PIN
+#define CONFIG_ENCODER5_A_PIN 11
+#endif
+
+#ifndef CONFIG_ENCODER5_B_PIN
+#define CONFIG_ENCODER5_B_PIN 10
+#endif
+
+#ifndef CONFIG_ENCODER5_SW_PIN
+#define CONFIG_ENCODER5_SW_PIN 10
+#endif
+
+
+#ifndef CONFIG_ENCODER6_A_PIN
+#define CONFIG_ENCODER6_A_PIN 11
+#endif
+
+#ifndef CONFIG_ENCODER6_B_PIN
+#define CONFIG_ENCODER6_B_PIN 10
+#endif
+
+#ifndef CONFIG_ENCODER6_SW_PIN
+#define CONFIG_ENCODER6_SW_PIN 10
+#endif
+
+
+#ifndef CONFIG_ENCODER7_A_PIN
+#define CONFIG_ENCODER7_A_PIN 11
+#endif
+
+#ifndef CONFIG_ENCODER7_B_PIN
+#define CONFIG_ENCODER7_B_PIN 10
+#endif
+
+#ifndef CONFIG_ENCODER7_SW_PIN
+#define CONFIG_ENCODER7_SW_PIN 10
+#endif
+
+
+#ifndef CONFIG_ENCODER0_PORTA
+#define CONFIG_ENCODER0_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER1_PORTA
+#define CONFIG_ENCODER1_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER2_PORTA
+#define CONFIG_ENCODER2_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER3_PORTA
+#define CONFIG_ENCODER3_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER4_PORTA
+#define CONFIG_ENCODER4_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER5_PORTA
+#define CONFIG_ENCODER5_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER6_PORTA
+#define CONFIG_ENCODER6_PORTA 0
+#endif
+
+#ifndef CONFIG_ENCODER7_PORTA
+#define CONFIG_ENCODER7_PORTA 0
+#endif
+
 
 //* =========== BLINK ================ *//
 #ifndef CONFIG_BLINK
