@@ -46,81 +46,87 @@ using namespace FW;
 #define KEYPAD_MAX_ROWS 8
 #define KEYPAD_MAX_COLS 8
 
+#define INPUT_MASK_PORTA(pin_en, porta, pin) (((uint64_t)(pin_en) & (uint32_t)(porta)) << pin)
+#define INPUT_MASK_PORTB(pin_en, porta, pin) (((uint64_t)(pin_en) & ~(uint32_t)(porta)) << pin)
+
+#define OUTPUT_MASK_PORTA(pin_en, porta, pin) (((uint64_t)(pin_en) & (uint32_t)(porta)) << pin)
+#define OUTPUT_MASK_PORTB(pin_en, porta, pin) (((uint64_t)(pin_en) & ~(uint32_t)(porta)) << pin)
+
 #if KEYPAD_SCAN_ROWS
 
-#define KEYPAD_INPUT_MASK_PORTA ((((uint64_t)CONFIG_KEYPAD_COL0 & (uint32_t)CONFIG_KEYPAD_COL0_PORTA) << CONFIG_KEYPAD_COL0_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL1 & (uint32_t)CONFIG_KEYPAD_COL1_PORTA) << CONFIG_KEYPAD_COL1_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL2 & (uint32_t)CONFIG_KEYPAD_COL2_PORTA) << CONFIG_KEYPAD_COL2_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL3 & (uint32_t)CONFIG_KEYPAD_COL3_PORTA) << CONFIG_KEYPAD_COL3_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL4 & (uint32_t)CONFIG_KEYPAD_COL4_PORTA) << CONFIG_KEYPAD_COL4_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL5 & (uint32_t)CONFIG_KEYPAD_COL5_PORTA) << CONFIG_KEYPAD_COL5_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL6 & (uint32_t)CONFIG_KEYPAD_COL6_PORTA) << CONFIG_KEYPAD_COL6_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL7 & (uint32_t)CONFIG_KEYPAD_COL7_PORTA) << CONFIG_KEYPAD_COL7_PIN))
+#define KEYPAD_INPUT_MASK_PORTA (INPUT_MASK_PORTA(CONFIG_KEYPAD_COL0, CONFIG_KEYPAD_COL0_PORTA, CONFIG_KEYPAD_COL0_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL1, CONFIG_KEYPAD_COL1_PORTA, CONFIG_KEYPAD_COL1_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL2, CONFIG_KEYPAD_COL2_PORTA, CONFIG_KEYPAD_COL2_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL3, CONFIG_KEYPAD_COL3_PORTA, CONFIG_KEYPAD_COL3_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL4, CONFIG_KEYPAD_COL4_PORTA, CONFIG_KEYPAD_COL4_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL5, CONFIG_KEYPAD_COL5_PORTA, CONFIG_KEYPAD_COL5_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL6, CONFIG_KEYPAD_COL6_PORTA, CONFIG_KEYPAD_COL6_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_COL7, CONFIG_KEYPAD_COL7_PORTA, CONFIG_KEYPAD_COL7_PIN))
 
-#define KEYPAD_INPUT_MASK_PORTB ((((uint64_t)CONFIG_KEYPAD_COL0 & ~(uint32_t)CONFIG_KEYPAD_COL0_PORTA) << CONFIG_KEYPAD_COL0_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL1 & ~(uint32_t)CONFIG_KEYPAD_COL1_PORTA) << CONFIG_KEYPAD_COL1_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL2 & ~(uint32_t)CONFIG_KEYPAD_COL2_PORTA) << CONFIG_KEYPAD_COL2_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL3 & ~(uint32_t)CONFIG_KEYPAD_COL3_PORTA) << CONFIG_KEYPAD_COL3_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL4 & ~(uint32_t)CONFIG_KEYPAD_COL4_PORTA) << CONFIG_KEYPAD_COL4_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL5 & ~(uint32_t)CONFIG_KEYPAD_COL5_PORTA) << CONFIG_KEYPAD_COL5_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL6 & ~(uint32_t)CONFIG_KEYPAD_COL6_PORTA) << CONFIG_KEYPAD_COL6_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_COL7 & ~(uint32_t)CONFIG_KEYPAD_COL7_PORTA) << CONFIG_KEYPAD_COL7_PIN))
+#define KEYPAD_INPUT_MASK_PORTB (INPUT_MASK_PORTB(CONFIG_KEYPAD_COL0, CONFIG_KEYPAD_COL0_PORTA, CONFIG_KEYPAD_COL0_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL1, CONFIG_KEYPAD_COL1_PORTA, CONFIG_KEYPAD_COL1_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL2, CONFIG_KEYPAD_COL2_PORTA, CONFIG_KEYPAD_COL2_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL3, CONFIG_KEYPAD_COL3_PORTA, CONFIG_KEYPAD_COL3_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL4, CONFIG_KEYPAD_COL4_PORTA, CONFIG_KEYPAD_COL4_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL5, CONFIG_KEYPAD_COL5_PORTA, CONFIG_KEYPAD_COL5_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL6, CONFIG_KEYPAD_COL6_PORTA, CONFIG_KEYPAD_COL6_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_COL7, CONFIG_KEYPAD_COL7_PORTA, CONFIG_KEYPAD_COL7_PIN))
 
-#define KEYPAD_OUTPUT_MASK_PORTA ((((uint64_t)CONFIG_KEYPAD_ROW0 & (uint32_t)CONFIG_KEYPAD_ROW0_PORTA) << CONFIG_KEYPAD_ROW0_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW1 & (uint32_t)CONFIG_KEYPAD_ROW1_PORTA) << CONFIG_KEYPAD_ROW1_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW2 & (uint32_t)CONFIG_KEYPAD_ROW2_PORTA) << CONFIG_KEYPAD_ROW2_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW3 & (uint32_t)CONFIG_KEYPAD_ROW3_PORTA) << CONFIG_KEYPAD_ROW3_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW4 & (uint32_t)CONFIG_KEYPAD_ROW4_PORTA) << CONFIG_KEYPAD_ROW4_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW5 & (uint32_t)CONFIG_KEYPAD_ROW5_PORTA) << CONFIG_KEYPAD_ROW5_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW6 & (uint32_t)CONFIG_KEYPAD_ROW6_PORTA) << CONFIG_KEYPAD_ROW6_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW7 & (uint32_t)CONFIG_KEYPAD_ROW7_PORTA) << CONFIG_KEYPAD_ROW7_PIN))
+#define KEYPAD_OUTPUT_MASK_PORTA (OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW0, CONFIG_KEYPAD_ROW0_PORTA, CONFIG_KEYPAD_ROW0_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW1, CONFIG_KEYPAD_ROW1_PORTA, CONFIG_KEYPAD_ROW1_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW2, CONFIG_KEYPAD_ROW2_PORTA, CONFIG_KEYPAD_ROW2_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW3, CONFIG_KEYPAD_ROW3_PORTA, CONFIG_KEYPAD_ROW3_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW4, CONFIG_KEYPAD_ROW4_PORTA, CONFIG_KEYPAD_ROW4_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW5, CONFIG_KEYPAD_ROW5_PORTA, CONFIG_KEYPAD_ROW5_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW6, CONFIG_KEYPAD_ROW6_PORTA, CONFIG_KEYPAD_ROW6_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_ROW7, CONFIG_KEYPAD_ROW7_PORTA, CONFIG_KEYPAD_ROW7_PIN))
 
-#define KEYPAD_OUTPUT_MASK_PORTB ((((uint64_t)CONFIG_KEYPAD_ROW0 & ~(uint32_t)CONFIG_KEYPAD_ROW0_PORTA) << CONFIG_KEYPAD_ROW0_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW1 & ~(uint32_t)CONFIG_KEYPAD_ROW1_PORTA) << CONFIG_KEYPAD_ROW1_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW2 & ~(uint32_t)CONFIG_KEYPAD_ROW2_PORTA) << CONFIG_KEYPAD_ROW2_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW3 & ~(uint32_t)CONFIG_KEYPAD_ROW3_PORTA) << CONFIG_KEYPAD_ROW3_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW4 & ~(uint32_t)CONFIG_KEYPAD_ROW4_PORTA) << CONFIG_KEYPAD_ROW4_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW5 & ~(uint32_t)CONFIG_KEYPAD_ROW5_PORTA) << CONFIG_KEYPAD_ROW5_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW6 & ~(uint32_t)CONFIG_KEYPAD_ROW6_PORTA) << CONFIG_KEYPAD_ROW6_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_ROW7 & ~(uint32_t)CONFIG_KEYPAD_ROW7_PORTA) << CONFIG_KEYPAD_ROW7_PIN))
+#define KEYPAD_OUTPUT_MASK_PORTB (OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW0, CONFIG_KEYPAD_ROW0_PORTA, CONFIG_KEYPAD_ROW0_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW1, CONFIG_KEYPAD_ROW1_PORTA, CONFIG_KEYPAD_ROW1_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW2, CONFIG_KEYPAD_ROW2_PORTA, CONFIG_KEYPAD_ROW2_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW3, CONFIG_KEYPAD_ROW3_PORTA, CONFIG_KEYPAD_ROW3_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW4, CONFIG_KEYPAD_ROW4_PORTA, CONFIG_KEYPAD_ROW4_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW5, CONFIG_KEYPAD_ROW5_PORTA, CONFIG_KEYPAD_ROW5_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW6, CONFIG_KEYPAD_ROW6_PORTA, CONFIG_KEYPAD_ROW6_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_ROW7, CONFIG_KEYPAD_ROW7_PORTA, CONFIG_KEYPAD_ROW7_PIN))
 
 #else
 
-#define KEYPAD_INPUT_MASK_PORTA ((((uint64_t)CONFIG_KEYPAD_ROW0 & (uint32_t)CONFIG_KEYPAD_ROW0_PORTA) << CONFIG_KEYPAD_ROW0_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW1 & (uint32_t)CONFIG_KEYPAD_ROW1_PORTA) << CONFIG_KEYPAD_ROW1_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW2 & (uint32_t)CONFIG_KEYPAD_ROW2_PORTA) << CONFIG_KEYPAD_ROW2_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW3 & (uint32_t)CONFIG_KEYPAD_ROW3_PORTA) << CONFIG_KEYPAD_ROW3_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW4 & (uint32_t)CONFIG_KEYPAD_ROW4_PORTA) << CONFIG_KEYPAD_ROW4_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW5 & (uint32_t)CONFIG_KEYPAD_ROW5_PORTA) << CONFIG_KEYPAD_ROW5_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW6 & (uint32_t)CONFIG_KEYPAD_ROW6_PORTA) << CONFIG_KEYPAD_ROW6_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW7 & (uint32_t)CONFIG_KEYPAD_ROW7_PORTA) << CONFIG_KEYPAD_ROW7_PIN))
+#define KEYPAD_INPUT_MASK_PORTA (INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW0, CONFIG_KEYPAD_ROW0_PORTA, CONFIG_KEYPAD_ROW0_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW1, CONFIG_KEYPAD_ROW1_PORTA, CONFIG_KEYPAD_ROW1_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW2, CONFIG_KEYPAD_ROW2_PORTA, CONFIG_KEYPAD_ROW2_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW3, CONFIG_KEYPAD_ROW3_PORTA, CONFIG_KEYPAD_ROW3_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW4, CONFIG_KEYPAD_ROW4_PORTA, CONFIG_KEYPAD_ROW4_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW5, CONFIG_KEYPAD_ROW5_PORTA, CONFIG_KEYPAD_ROW5_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW6, CONFIG_KEYPAD_ROW6_PORTA, CONFIG_KEYPAD_ROW6_PIN) \
+                               | INPUT_MASK_PORTA(CONFIG_KEYPAD_ROW7, CONFIG_KEYPAD_ROW7_PORTA, CONFIG_KEYPAD_ROW7_PIN))
 
-#define KEYPAD_INPUT_MASK_PORTB ((((uint64_t)CONFIG_KEYPAD_ROW0 & ~(uint32_t)CONFIG_KEYPAD_ROW0_PORTA) << CONFIG_KEYPAD_ROW0_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW1 & ~(uint32_t)CONFIG_KEYPAD_ROW1_PORTA) << CONFIG_KEYPAD_ROW1_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW2 & ~(uint32_t)CONFIG_KEYPAD_ROW2_PORTA) << CONFIG_KEYPAD_ROW2_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW3 & ~(uint32_t)CONFIG_KEYPAD_ROW3_PORTA) << CONFIG_KEYPAD_ROW3_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW4 & ~(uint32_t)CONFIG_KEYPAD_ROW4_PORTA) << CONFIG_KEYPAD_ROW4_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW5 & ~(uint32_t)CONFIG_KEYPAD_ROW5_PORTA) << CONFIG_KEYPAD_ROW5_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW6 & ~(uint32_t)CONFIG_KEYPAD_ROW6_PORTA) << CONFIG_KEYPAD_ROW6_PIN) \
-                               | (((uint64_t)CONFIG_KEYPAD_ROW7 & ~(uint32_t)CONFIG_KEYPAD_ROW7_PORTA) << CONFIG_KEYPAD_ROW7_PIN))
+#define KEYPAD_INPUT_MASK_PORTB (INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW0, CONFIG_KEYPAD_ROW0_PORTA, CONFIG_KEYPAD_ROW0_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW1, CONFIG_KEYPAD_ROW1_PORTA, CONFIG_KEYPAD_ROW1_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW2, CONFIG_KEYPAD_ROW2_PORTA, CONFIG_KEYPAD_ROW2_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW3, CONFIG_KEYPAD_ROW3_PORTA, CONFIG_KEYPAD_ROW3_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW4, CONFIG_KEYPAD_ROW4_PORTA, CONFIG_KEYPAD_ROW4_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW5, CONFIG_KEYPAD_ROW5_PORTA, CONFIG_KEYPAD_ROW5_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW6, CONFIG_KEYPAD_ROW6_PORTA, CONFIG_KEYPAD_ROW6_PIN) \
+                               | INPUT_MASK_PORTB(CONFIG_KEYPAD_ROW7, CONFIG_KEYPAD_ROW7_PORTA, CONFIG_KEYPAD_ROW7_PIN))
 
-#define KEYPAD_OUTPUT_MASK_PORTA ((((uint64_t)CONFIG_KEYPAD_COL0 & (uint32_t)CONFIG_KEYPAD_COL0_PORTA) << CONFIG_KEYPAD_COL0_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL1 & (uint32_t)CONFIG_KEYPAD_COL1_PORTA) << CONFIG_KEYPAD_COL1_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL2 & (uint32_t)CONFIG_KEYPAD_COL2_PORTA) << CONFIG_KEYPAD_COL2_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL3 & (uint32_t)CONFIG_KEYPAD_COL3_PORTA) << CONFIG_KEYPAD_COL3_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL4 & (uint32_t)CONFIG_KEYPAD_COL4_PORTA) << CONFIG_KEYPAD_COL4_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL5 & (uint32_t)CONFIG_KEYPAD_COL5_PORTA) << CONFIG_KEYPAD_COL5_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL6 & (uint32_t)CONFIG_KEYPAD_COL6_PORTA) << CONFIG_KEYPAD_COL6_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL7 & (uint32_t)CONFIG_KEYPAD_COL7_PORTA) << CONFIG_KEYPAD_COL7_PIN))
+#define KEYPAD_OUTPUT_MASK_PORTA (OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL0, CONFIG_KEYPAD_COL0_PORTA, CONFIG_KEYPAD_COL0_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL1, CONFIG_KEYPAD_COL1_PORTA, CONFIG_KEYPAD_COL1_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL2, CONFIG_KEYPAD_COL2_PORTA, CONFIG_KEYPAD_COL2_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL3, CONFIG_KEYPAD_COL3_PORTA, CONFIG_KEYPAD_COL3_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL4, CONFIG_KEYPAD_COL4_PORTA, CONFIG_KEYPAD_COL4_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL5, CONFIG_KEYPAD_COL5_PORTA, CONFIG_KEYPAD_COL5_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL6, CONFIG_KEYPAD_COL6_PORTA, CONFIG_KEYPAD_COL6_PIN) \
+                                | OUTPUT_MASK_PORTA(CONFIG_KEYPAD_COL7, CONFIG_KEYPAD_COL7_PORTA, CONFIG_KEYPAD_COL7_PIN))
 
-#define KEYPAD_OUTPUT_MASK_PORTB ((((uint64_t)CONFIG_KEYPAD_COL0 & ~(uint32_t)CONFIG_KEYPAD_COL0_PORTA) << CONFIG_KEYPAD_COL0_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL1 & ~(uint32_t)CONFIG_KEYPAD_COL1_PORTA) << CONFIG_KEYPAD_COL1_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL2 & ~(uint32_t)CONFIG_KEYPAD_COL2_PORTA) << CONFIG_KEYPAD_COL2_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL3 & ~(uint32_t)CONFIG_KEYPAD_COL3_PORTA) << CONFIG_KEYPAD_COL3_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL4 & ~(uint32_t)CONFIG_KEYPAD_COL4_PORTA) << CONFIG_KEYPAD_COL4_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL5 & ~(uint32_t)CONFIG_KEYPAD_COL5_PORTA) << CONFIG_KEYPAD_COL5_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL6 & ~(uint32_t)CONFIG_KEYPAD_COL6_PORTA) << CONFIG_KEYPAD_COL6_PIN) \
-                                | (((uint64_t)CONFIG_KEYPAD_COL7 & ~(uint32_t)CONFIG_KEYPAD_COL7_PORTA) << CONFIG_KEYPAD_COL7_PIN))
+#define KEYPAD_OUTPUT_MASK_PORTB (OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL0, CONFIG_KEYPAD_COL0_PORTA, CONFIG_KEYPAD_COL0_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL1, CONFIG_KEYPAD_COL1_PORTA, CONFIG_KEYPAD_COL1_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL2, CONFIG_KEYPAD_COL2_PORTA, CONFIG_KEYPAD_COL2_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL3, CONFIG_KEYPAD_COL3_PORTA, CONFIG_KEYPAD_COL3_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL4, CONFIG_KEYPAD_COL4_PORTA, CONFIG_KEYPAD_COL4_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL5, CONFIG_KEYPAD_COL5_PORTA, CONFIG_KEYPAD_COL5_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL6, CONFIG_KEYPAD_COL6_PORTA, CONFIG_KEYPAD_COL6_PIN) \
+                                | OUTPUT_MASK_PORTB(CONFIG_KEYPAD_COL7, CONFIG_KEYPAD_COL7_PORTA, CONFIG_KEYPAD_COL7_PIN))
 
 #endif
 
@@ -378,7 +384,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             keyState *ks;
             uint32_t ina, inb;
             bool val;
-            keyEvent2 keyevent;
+            keyEvent keyevent;
             #if KEYPAD_SCAN_ROWS
             for(int i=0; i<KEYPAD_MAX_ROWS; i++){
                 if((1 << i) & KEYPAD_ACTIVE_ROWS){
@@ -483,7 +489,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                 evt = new DelegateDataReady(req.getRequesterId(), me->m_fifo);
             }
             else{
-                keyEvent2 keyevent;
+                keyEvent keyevent;
 
                 switch (reg){
                     case SEESAW_KEYPAD_STATUS:
@@ -492,7 +498,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                         break;
                     case SEESAW_KEYPAD_COUNT:
                         keyevent.bit.TYPE = KEYPAD_TYPE_COUNT;
-                        // FIXME: is this stable for output size determination
+                        // NOTE: is this potentially approximate
                         keyevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / 2;
                         break;
                     default:
@@ -511,6 +517,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             break;
         }
         case KEYPAD_WRITE_REG_REQ: {
+            // FIXME: use the keyEvent structure
             LOG_EVENT(e);
             KeypadWriteRegReq const &req = static_cast<KeypadWriteRegReq const &>(*e);
             uint32_t c = req.getValue();
@@ -529,7 +536,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                     if(c & 0x01) //activate the selected edges
                         ks->bit.ACTIVE |= (c >> 1);
                     else //deactivate the selected edges
-                        ks->bit.ACTIVE &= (c >> 1);
+                        ks->bit.ACTIVE &= ~(c >> 1);
 
                     break;
                 default:

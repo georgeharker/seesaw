@@ -273,15 +273,26 @@
 	/****** STATUS *****/
 	#define SEESAW_ENCODER_STATUS 0x00
 
+	/****** Enable or disable delta / press events *****/
+	#define SEESAW_ENCODER_EVENT 0x01
+
 	/****** Writing a 1 to any bit in this register will enable the interrupt *****/
-	#define SEESAW_ENCODER_INTENSET 0x10
+	#define SEESAW_ENCODER_INTENSET 0x02
 
 	/****** Writing a 1 to any bit in this register will disable the interrupt *****/
-	#define SEESAW_ENCODER_INTENCLR 0x20
+	#define SEESAW_ENCODER_INTENCLR 0x03
 
 	/****** POSITION *****/
-	#define SEESAW_ENCODER_POSITION 0x30
+	#define SEESAW_ENCODER_POSITION 0x04
 
 	/****** DELTA *****/
-	#define SEESAW_ENCODER_DELTA 0x40
+	#define SEESAW_ENCODER_DELTA 0x05
+
+	/****** number of events in the fifo *****/
+	#define SEESAW_ENCODER_COUNT 0x06
+
+	/****** Reading data from the fifo will clear interrupt and data ready flag *****/
+	#define SEESAW_ENCODER_FIFO 0x10
+
+
 

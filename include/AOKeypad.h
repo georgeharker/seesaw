@@ -67,14 +67,6 @@ union keyState {
 
 union keyEvent {
     struct {
-        uint8_t EDGE: 2;
-        uint8_t NUM: 6; //64 events max
-    } bit;
-    uint8_t reg;
-};
-
-union keyEvent2 {
-    struct {
         uint8_t TYPE: 8;
         union {
             struct {

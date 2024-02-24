@@ -39,6 +39,58 @@
 using namespace QP;
 using namespace FW;
 
+enum {
+    ENCODER_TYPE_VALUE = 0,
+    ENCODER_TYPE_DELTA = 1,
+    ENCODER_TYPE_PRESS = 2,
+    ENCODER_TYPE_COUNT = 3,
+    ENCODER_TYPE_STATUS = 4,
+    ENCODER_TYPE_INVALID = 0xFF
+};
+
+enum {
+    ENCODER_EDGE_HIGH = 0,
+    ENCODER_EDGE_LOW,
+    ENCODER_EDGE_FALLING,
+    ENCODER_EDGE_RISING,
+    ENCODER_VALUE_CHANGE,
+    ENCODER_DELTA
+};
+
+enum {
+    ENCODER_DIRECTION_INC = 0,
+    ENCODER_DIRECTION_DEC = 1,
+};
+
+union encoderEvent {
+    struct {
+        uint8_t TYPE: 8;
+        union {
+            struct {
+                int32_t DELTA: 28;
+                uint8_t ENCODER: 4; //16 events max
+            } delta;
+            struct {
+                int32_t VALUE: 28;
+                uint8_t ENCODER: 4; //16 events max
+            } value;
+            struct {
+                int8_t PRESS: 2;
+                uint8_t ENCODER: 4; //16 events max
+            } press;
+            struct {
+               uint32_t COUNT;
+            } count;
+            struct {
+                uint8_t STATUS;
+                uint8_t ENCODER: 4; //16 events max
+            } status;
+        };
+   } bit;
+    uint8_t reg[5];
+};
+
+// TYPE = COUNT,rem etc, count down or preamble n bytes, or END
 class AOEncoder : public QActive {
 public:
     AOEncoder();
@@ -49,7 +101,7 @@ public:
 
     static volatile int32_t m_value[CONFIG_NUM_ENCODERS];
     static volatile int32_t m_delta[CONFIG_NUM_ENCODERS];
-    static volatile uint8_t m_enc_prev_pos[CONFIG_NUM_ENCODERS];
+    static volatile uint8_t m_enc_prev_state[CONFIG_NUM_ENCODERS];
     static volatile uint8_t m_enc_flags[CONFIG_NUM_ENCODERS];
 
     // The status register
@@ -65,6 +117,12 @@ public:
             *  1: the value has changed since last read
             */ 
             uint8_t DATA_RDY: 1;
+
+            /* 1: send event on press edge
+             * 0: do not
+             * bits are 1<<edge
+             * */
+            uint8_t ACTIVE;
         } bit;
         uint8_t reg;
     };
@@ -78,6 +136,8 @@ public:
         uint8_t reg;
 	};
 	static inten m_inten[CONFIG_NUM_ENCODERS];
+
+    Fifo *m_fifo;
 
 protected:
     static QState InitialPseudoState(AOEncoder * const me, QEvt const * const e);
