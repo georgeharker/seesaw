@@ -43,7 +43,7 @@ using namespace FW;
 
 #if CONFIG_ENCODER
 
-static Fifo *m_outFifo;
+Fifo *AOEncoder::m_fifo;
 
 #define BIT_IS_SET(x,b) (((x)&(1UL << b)) != 0)
 #define BIT_IS_CLEAR(x,b) (((x)&(1UL << b)) == 0)
@@ -350,7 +350,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
 
                 //return the read register in the default fifo
                 evt = new DelegateDataReady(req.getRequesterId());
-                dest->Write(encevent.reg, 5);
+                dest->Write(encevent.reg, sizeof(encoderEvent));
             }
 
             QF::PUBLISH(evt, me);
@@ -483,21 +483,71 @@ void CONFIG_ENCODER_HANDLER( void ) {
             }
         }
 
-        AOEncoder::m_enc_prev_state[encodernum] = enc_cur_state;
-        
+        encoderEvent encevent;
         if (enc_action != 0) {
             AOEncoder::m_value[encodernum] += enc_action;
             AOEncoder::m_delta[encodernum] += enc_action;
         
-            // FIXME: fire optional event types, deal with presses
-            encoderEvent encevent;
-            encevent.bit.TYPE = ENCODER_TYPE_DELTA;
-            encevent.bit.delta.ENCODER = encodernum;
-            encevent.bit.delta.DELTA = enc_action;
+            if (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_VALUE_CHANGE)) {
+                encevent.bit.TYPE = ENCODER_TYPE_VALUE;
+                encevent.bit.value.ENCODER = encodernum;
+                encevent.bit.value.VALUE = AOEncoder::m_value[encodernum];
             
-            m_outFifo->Write(encevent.reg, 2);
+                AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
+            }
+            if (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_DELTA)) {
+                encevent.bit.TYPE = ENCODER_TYPE_DELTA;
+                encevent.bit.delta.ENCODER = encodernum;
+                encevent.bit.delta.DELTA = enc_action;
             
-            //if interrupts are enabled fire an interrupt
+                AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
+            }
+
+        }
+
+        uint8_t enc_cur_sw = enc_cur_state & 0x04;
+        uint8_t enc_prev_sw = AOEncoder::m_enc_prev_state[encodernum] & 0x04;
+
+        bool interrupt = false;
+        if (enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_HIGH))) {
+            encevent.bit.TYPE = ENCODER_TYPE_PRESS;
+            encevent.bit.press.ENCODER = encodernum;
+            encevent.bit.press.PRESS = ENCODER_EDGE_HIGH;
+            interrupt = true;
+        
+            AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
+        }
+        if (!enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_LOW))) {
+            encevent.bit.TYPE = ENCODER_TYPE_PRESS;
+            encevent.bit.press.ENCODER = encodernum;
+            encevent.bit.press.PRESS = ENCODER_EDGE_LOW;
+            interrupt = true;
+        
+            AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
+        }
+        if (enc_cur_sw != enc_prev_sw) {
+            if (enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_RISING))) {
+                encevent.bit.TYPE = ENCODER_TYPE_PRESS;
+                encevent.bit.press.ENCODER = encodernum;
+                encevent.bit.press.PRESS = ENCODER_EDGE_RISING;
+                interrupt = true;
+            
+                AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
+  }
+            if (!enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_FALLING))) {
+                encevent.bit.TYPE = ENCODER_TYPE_PRESS;
+                encevent.bit.press.ENCODER = encodernum;
+                encevent.bit.press.PRESS = ENCODER_EDGE_FALLING;
+                interrupt = true;
+            
+                AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
+            }
+
+        }
+
+
+        if (enc_action != 0 || interrupt) {
+            // if interrupts are enabled fire an interrupt
             if (!AOEncoder::m_status[encodernum].bit.DATA_RDY) {
                 AOEncoder::m_status[encodernum].bit.DATA_RDY = 1;
           
@@ -507,6 +557,9 @@ void CONFIG_ENCODER_HANDLER( void ) {
                 }
             }
         }
+        
+        // Record the previous state
+        AOEncoder::m_enc_prev_state[encodernum] = enc_cur_state;
     }
 
     //clear the interrupt

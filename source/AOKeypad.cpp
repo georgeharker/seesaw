@@ -429,19 +429,19 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
 
                             if(ks->bit.ACTIVE & KEYPAD_HIGH && val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_HIGH;
-                                me->m_fifo->Write(keyevent.reg, 2);
+                                me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
                             }
                             if(ks->bit.ACTIVE & KEYPAD_LOW && !val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_LOW;
-                                me->m_fifo->Write(keyevent.reg, 2);
+                                me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
                             }
                             if(ks->bit.ACTIVE & KEYPAD_RISING && !ks->bit.STATE && val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_RISING;
-                                me->m_fifo->Write(keyevent.reg, 2);
+                                me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
                             }
                             if(ks->bit.ACTIVE & KEYPAD_FALLING && ks->bit.STATE && !val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_FALLING;
-                                me->m_fifo->Write(keyevent.reg, 2);
+                                me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
                             }
 
                             ks->bit.STATE = val;
@@ -508,7 +508,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
 
                 //return the read register in the default fifo
                 evt = new DelegateDataReady(req.getRequesterId());
-                dest->Write(keyevent.reg, 2);
+                dest->Write(keyevent.reg, sizeof(keyEvent));
             }
 
             QF::PUBLISH(evt, me);

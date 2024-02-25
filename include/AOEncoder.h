@@ -137,7 +137,7 @@ public:
 	};
 	static inten m_inten[CONFIG_NUM_ENCODERS];
 
-    Fifo *m_fifo;
+    static Fifo *m_fifo;
 
 protected:
     static QState InitialPseudoState(AOEncoder * const me, QEvt const * const e);
