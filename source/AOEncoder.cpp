@@ -533,7 +533,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
                 interrupt = true;
             
                 AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
-  }
+            }
             if (!enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_FALLING))) {
                 encevent.bit.TYPE = ENCODER_TYPE_PRESS;
                 encevent.bit.press.ENCODER = encodernum;
