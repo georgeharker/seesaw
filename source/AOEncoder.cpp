@@ -113,7 +113,7 @@ uint32_t encoder_a_pins[] = {
         CONFIG_ENCODER6_A_PIN,
         CONFIG_ENCODER7_A_PIN
      };
-uint32_t encoder_b_pins[CONFIG_NUM_ENCODERS] = {
+uint32_t encoder_b_pins[] = {
         CONFIG_ENCODER0_B_PIN,
         CONFIG_ENCODER1_B_PIN,
         CONFIG_ENCODER2_B_PIN,
@@ -123,7 +123,7 @@ uint32_t encoder_b_pins[CONFIG_NUM_ENCODERS] = {
         CONFIG_ENCODER6_B_PIN,
         CONFIG_ENCODER7_B_PIN
      };
-uint32_t encoder_sw_pins[CONFIG_NUM_ENCODERS] = {
+uint32_t encoder_sw_pins[] = {
         CONFIG_ENCODER0_SW_PIN,
         CONFIG_ENCODER1_SW_PIN,
         CONFIG_ENCODER2_SW_PIN,
@@ -133,7 +133,7 @@ uint32_t encoder_sw_pins[CONFIG_NUM_ENCODERS] = {
         CONFIG_ENCODER6_SW_PIN,
         CONFIG_ENCODER7_SW_PIN
      };
-uint32_t encoder_porta[CONFIG_NUM_ENCODERS] = {
+uint32_t encoder_porta[] = {
         CONFIG_ENCODER0_PORTA,
         CONFIG_ENCODER1_PORTA,
         CONFIG_ENCODER2_PORTA,
