@@ -72,7 +72,7 @@
 #define CONFIG_I2C_SLAVE_FLOW_CONTROL_PIN 20
 
 //override the default pins
-#define CONFIG_I2C_SLAVE_PIN_SDA 22     # SDA, SCL on feather M0
+#define CONFIG_I2C_SLAVE_PIN_SDA 22     /* SDA, SCL on feather M0*/
 #define CONFIG_I2C_SLAVE_PIN_SCL 23
 
 
@@ -125,10 +125,9 @@
 #define CONFIG_ENCODER6 0
 #define CONFIG_ENCODER7 0
 
-
-#define CONFIG_ENCODER0_A_PIN 20  # D6
-#define CONFIG_ENCODER0_B_PIN 21  # D7
-#define CONFIG_ENCODER0_SW_PIN 4
+#define CONFIG_ENCODER0_A_PIN 18  /* D10 */
+#define CONFIG_ENCODER0_B_PIN 19  /* D12 */
+#define CONFIG_ENCODER0_SW_PIN 20 /* D6 */
 
 #define CONFIG_ENCODER1_A_PIN 9
 #define CONFIG_ENCODER1_B_PIN 4
