@@ -293,58 +293,62 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
             Evt *evt;
 
             if (reg == SEESAW_KEYPAD_FIFO) {
-                if (AOEncoder::m_status[encodernum].bit.DATA_RDY){
-                    if(AOEncoder::m_inten[encodernum].bit.DATA_RDY){
-                        // post an interrupt event
-                        evt = new InterruptClearReq( SEESAW_INTERRUPT_ENCODER_DATA_RDY );
-                        QF::PUBLISH(evt, me);
+                if (encodernum < CONFIG_NUM_ENCODERS) {
+                    if (AOEncoder::m_status[encodernum].bit.DATA_RDY){
+                        if(AOEncoder::m_inten[encodernum].bit.DATA_RDY){
+                            // post an interrupt event
+                            evt = new InterruptClearReq( SEESAW_INTERRUPT_ENCODER_DATA_RDY );
+                            QF::PUBLISH(evt, me);
+                        }
+                        AOEncoder::m_status[encodernum].bit.DATA_RDY = 0;
                     }
-                    AOEncoder::m_status[encodernum].bit.DATA_RDY = 0;
                 }
 
                 //give the requester our pipe
                 evt = new DelegateDataReady(req.getRequesterId(), me->m_fifo);
             } else {
                 encoderEvent encevent;
+                encevent.bit.TYPE = ENCODER_TYPE_INVALID;
+                if (encodernum < CONFIG_NUM_ENCODERS) {
+                    switch(reg) {
+                        case SEESAW_ENCODER_STATUS:
+                        {
+                            encevent.bit.TYPE = ENCODER_TYPE_STATUS;
+                            encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_status[encodernum].reg);
+                            encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
+                            break;
+                        }
 
-                switch(reg) {
-                    case SEESAW_ENCODER_STATUS:
-                    {
-                        encevent.bit.TYPE = ENCODER_TYPE_STATUS;
-                        encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_status[encodernum].reg);
-                        encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
-                        break;
-                    }
-
-                    case SEESAW_ENCODER_POSITION:
-                    {
-                        encevent.bit.TYPE = ENCODER_TYPE_VALUE;
-                        encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_value[encodernum]);
-                        encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
-                        break;
-                    }
+                        case SEESAW_ENCODER_POSITION:
+                        {
+                            encevent.bit.TYPE = ENCODER_TYPE_VALUE;
+                            encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_value[encodernum]);
+                            encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
+                            break;
+                        }
 
 
-                    case SEESAW_ENCODER_DELTA:
-                    {
-                        encevent.bit.TYPE = ENCODER_TYPE_DELTA;
-                        encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_delta[encodernum]);
-                        encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
-                        break;
-                    }
-                    
-                    case SEESAW_ENCODER_COUNT:
-                    {
-                        encevent.bit.TYPE = ENCODER_TYPE_COUNT;
-                        // NOTE: is this potentially approximate
-                        encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / 2;
-                        break;
-                    }
+                        case SEESAW_ENCODER_DELTA:
+                        {
+                            encevent.bit.TYPE = ENCODER_TYPE_DELTA;
+                            encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_delta[encodernum]);
+                            encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
+                            break;
+                        }
+                        
+                        case SEESAW_ENCODER_COUNT:
+                        {
+                            encevent.bit.TYPE = ENCODER_TYPE_COUNT;
+                            // NOTE: is this potentially approximate
+                            encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / 2;
+                            break;
+                        }
 
-                    
-                    default: {
-                        encevent.bit.TYPE = ENCODER_TYPE_INVALID;
-                        break;
+                        
+                        default: {
+                            encevent.bit.TYPE = ENCODER_TYPE_INVALID;
+                            break;
+                        }
                     }
                 }
 
@@ -368,40 +372,42 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
             uint8_t encodernum =  c & 0x0F;
             int32_t value = (c & 0xFFFFFFF0) >> 4;
             
-            switch (req.getReg()) {
-                case SEESAW_ENCODER_EVENT:
-                {
-                    //turn an event on or off
-                    volatile AOEncoder::status *es;
-                    es = &me->m_status[encodernum];
+            if (encodernum < CONFIG_NUM_ENCODERS) {
+                switch (req.getReg()) {
+                    case SEESAW_ENCODER_EVENT:
+                    {
+                        //turn an event on or off
+                        volatile AOEncoder::status *es;
+                        es = &me->m_status[encodernum];
 
-                    // Value is:
-                    // enc bits 0-3
-                    // edge 4-9
-                    // enable 10
+                        // Value is:
+                        // enc bits 0-3
+                        // edge 4-9
+                        // enable 10
 
-                    if(value & (0x01 << 10)) //activate the selected edges
-                        es->bit.ACTIVE |= (value & 0x0F);
-                    else //deactivate the selected edges
-                        es->bit.ACTIVE &= (value & 0x0F);
+                        if(value & (0x01 << 10)) //activate the selected edges
+                            es->bit.ACTIVE |= (value & 0x0F);
+                        else //deactivate the selected edges
+                            es->bit.ACTIVE &= (value & 0x0F);
 
-                    break;
+                        break;
+                    }
+
+                    case SEESAW_ENCODER_POSITION:
+                        AOEncoder::m_value[encodernum] = value;
+                        break;
+                    case SEESAW_ENCODER_INTENSET:
+                        me->m_inten[encodernum].reg |= value;
+                        break;
+                    case SEESAW_ENCODER_INTENCLR:
+                        me->m_inten[encodernum].reg &= ~value;
+                        break;
+                    default:
+                        break;
                 }
-
-                case SEESAW_ENCODER_POSITION:
-                    AOEncoder::m_value[encodernum] = value;
-                    break;
-                case SEESAW_ENCODER_INTENSET:
-                    me->m_inten[encodernum].reg |= value;
-                    break;
-                case SEESAW_ENCODER_INTENCLR:
-                    me->m_inten[encodernum].reg &= ~value;
-                    break;
-                default:
-                    break;
+                status = Q_HANDLED();
+                break;
             }
-            status = Q_HANDLED();
-            break;
         }
         default: {
             status = Q_SUPER(&AOEncoder::Root);
