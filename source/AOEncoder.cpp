@@ -340,7 +340,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                         {
                             encevent.bit.TYPE = ENCODER_TYPE_COUNT;
                             // NOTE: is this potentially approximate
-                            encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / 2;
+                            encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / sizeof(encoderEvent);
                             break;
                         }
 

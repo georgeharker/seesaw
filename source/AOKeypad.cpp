@@ -499,7 +499,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                     case SEESAW_KEYPAD_COUNT:
                         keyevent.bit.TYPE = KEYPAD_TYPE_COUNT;
                         // NOTE: is this potentially approximate
-                        keyevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / 2;
+                        keyevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / sizeof(keyEvent);
                         break;
                     default:
                         keyevent.bit.TYPE = KEYPAD_TYPE_INVALID;
