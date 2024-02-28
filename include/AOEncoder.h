@@ -57,37 +57,33 @@ enum {
     ENCODER_DELTA
 };
 
-enum {
-    ENCODER_DIRECTION_INC = 0,
-    ENCODER_DIRECTION_DEC = 1,
-};
-
 union encoderEvent {
-    struct {
-        uint8_t TYPE: 8;
-        union {
-            struct {
-                int32_t DELTA: 28;
-                uint8_t ENCODER: 4; //16 events max
+    struct __attribute__((packed)) {
+        uint8_t TYPE;
+        union __attribute__((packed)) {
+            struct __attribute__((packed)) {
+                uint8_t ENCODER;
+                int16_t DELTA;
             } delta;
-            struct {
-                int32_t VALUE: 28;
-                uint8_t ENCODER: 4; //16 events max
+            struct __attribute__((packed)) {
+                uint8_t ENCODER;
+                int16_t VALUE;
             } value;
-            struct {
-                int8_t PRESS: 2;
-                uint8_t ENCODER: 4; //16 events max
+            struct __attribute__((packed)) {
+                uint8_t ENCODER;
+                int16_t EDGE;
             } press;
-            struct {
-               uint32_t COUNT;
+            struct __attribute__((packed)) {
+                uint8_t __PACK;
+                uint16_t COUNT;
             } count;
-            struct {
-                uint8_t STATUS;
-                uint8_t ENCODER: 4; //16 events max
+            struct __attribute__((packed)) {
+                uint8_t ENCODER;
+                uint16_t STATUS;
             } status;
         };
    } bit;
-    uint8_t reg[5];
+    uint8_t reg[4];
 };
 
 // TYPE = COUNT,rem etc, count down or preamble n bytes, or END
@@ -108,6 +104,12 @@ public:
     union status {
         
         struct {
+            /* 1: send event on press edge
+             * 0: do not
+             * bits are 1<<edge
+             * */
+            uint8_t ACTIVE;
+
             /* 0: no error
             *  1: error has occurred
             */ 
@@ -117,14 +119,8 @@ public:
             *  1: the value has changed since last read
             */ 
             uint8_t DATA_RDY: 1;
-
-            /* 1: send event on press edge
-             * 0: do not
-             * bits are 1<<edge
-             * */
-            uint8_t ACTIVE;
         } bit;
-        uint8_t reg;
+        uint32_t reg;
     };
     static volatile status m_status[CONFIG_NUM_ENCODERS];
 

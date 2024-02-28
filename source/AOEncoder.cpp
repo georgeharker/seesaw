@@ -296,7 +296,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
 
             Evt *evt;
 
-            if (reg == SEESAW_KEYPAD_FIFO) {
+            if (reg == SEESAW_ENCODER_FIFO) {
                 if (encodernum < CONFIG_NUM_ENCODERS) {
                     if (AOEncoder::m_status[encodernum].bit.DATA_RDY){
                         if(AOEncoder::m_inten[encodernum].bit.DATA_RDY){
@@ -311,7 +311,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                 //give the requester our pipe
                 evt = new DelegateDataReady(req.getRequesterId(), me->m_fifo);
             } else {
-                encoderEvent encevent;
+                encoderEvent encevent = {0};
                 encevent.bit.TYPE = ENCODER_TYPE_INVALID;
                 if (encodernum < CONFIG_NUM_ENCODERS) {
                     switch(reg) {
@@ -347,7 +347,6 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                             encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / sizeof(encoderEvent);
                             break;
                         }
-
                         
                         default: {
                             encevent.bit.TYPE = ENCODER_TYPE_INVALID;
@@ -374,7 +373,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
             int32_t c = req.getValue();
 
             uint8_t encodernum =  c & 0x0F;
-            int32_t value = (c & 0xFFFFFFF0) >> 4;
+            uint32_t value = (c & 0xFFFFFFF0) >> 4;
             
             if (encodernum < CONFIG_NUM_ENCODERS) {
                 switch (req.getReg()) {
@@ -387,12 +386,12 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                         // Value is:
                         // enc bits 0-3
                         // edge 4-9
-                        // enable 10
+                        // enable 16
 
-                        if(value & (0x01 << 10)) //activate the selected edges
-                            es->bit.ACTIVE |= (value & 0x0F);
+                        if(value & (0x01 << 16)) //activate the selected edges
+                            es->bit.ACTIVE |= (value & 0xFF);
                         else //deactivate the selected edges
-                            es->bit.ACTIVE &= (value & 0x0F);
+                            es->bit.ACTIVE &= (value & 0xFF);
 
                         break;
                     }
@@ -493,7 +492,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
             }
         }
 
-        encoderEvent encevent;
+        encoderEvent encevent = {0};
         if (enc_action != 0) {
             AOEncoder::m_value[encodernum] += enc_action;
             AOEncoder::m_delta[encodernum] += enc_action;
@@ -522,7 +521,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
         if (enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_HIGH))) {
             encevent.bit.TYPE = ENCODER_TYPE_PRESS;
             encevent.bit.press.ENCODER = encodernum;
-            encevent.bit.press.PRESS = ENCODER_EDGE_HIGH;
+            encevent.bit.press.EDGE = ENCODER_EDGE_HIGH;
             interrupt = true;
         
             AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
@@ -530,7 +529,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
         if (!enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_LOW))) {
             encevent.bit.TYPE = ENCODER_TYPE_PRESS;
             encevent.bit.press.ENCODER = encodernum;
-            encevent.bit.press.PRESS = ENCODER_EDGE_LOW;
+            encevent.bit.press.EDGE= ENCODER_EDGE_LOW;
             interrupt = true;
         
             AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
@@ -539,7 +538,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
             if (enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_RISING))) {
                 encevent.bit.TYPE = ENCODER_TYPE_PRESS;
                 encevent.bit.press.ENCODER = encodernum;
-                encevent.bit.press.PRESS = ENCODER_EDGE_RISING;
+                encevent.bit.press.EDGE = ENCODER_EDGE_RISING;
                 interrupt = true;
             
                 AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
@@ -547,13 +546,17 @@ void CONFIG_ENCODER_HANDLER( void ) {
             if (!enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_FALLING))) {
                 encevent.bit.TYPE = ENCODER_TYPE_PRESS;
                 encevent.bit.press.ENCODER = encodernum;
-                encevent.bit.press.PRESS = ENCODER_EDGE_FALLING;
+                encevent.bit.press.EDGE = ENCODER_EDGE_FALLING;
                 interrupt = true;
             
                 AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
             }
 
         }
+    
+
+        // Re enable ISRs before an call to QF::PUBLISH
+        QXK_ISR_EXIT();
 
 
         if (enc_action != 0 || interrupt) {
@@ -574,7 +577,6 @@ void CONFIG_ENCODER_HANDLER( void ) {
 
     //clear the interrupt
     CONFIG_ENCODER_TC->COUNT16.INTFLAG.bit.MC0 = 1;
-    		QXK_ISR_EXIT();
 }
 }
 
