@@ -27,6 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
+#include <assert.h>
+
 #include "qpcpp.h"
 #include "qp_extras.h"
 
@@ -42,6 +44,8 @@
 Q_DEFINE_THIS_FILE
 
 using namespace FW;
+
+static_assert(sizeof(keyEvent) == 2, "keyEvent must be 2 bytes");
 
 #define KEYPAD_MAX_ROWS 8
 #define KEYPAD_MAX_COLS 8

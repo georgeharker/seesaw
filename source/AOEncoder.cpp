@@ -27,6 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
+#include <assert.h>
+
 #include "qpcpp.h"
 #include "qp_extras.h"
 
@@ -40,6 +42,8 @@
 Q_DEFINE_THIS_FILE
 
 using namespace FW;
+
+static_assert(sizeof(encoderEvent) == 4, "encoderEvent must be 4 bytes");
 
 #if CONFIG_ENCODER
 
