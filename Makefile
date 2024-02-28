@@ -4,14 +4,20 @@ include boards/$(BOARD)/board.mk
 CC=arm-none-eabi-gcc
 CXX=arm-none-eabi-g++
 
-ifeq ($(DEBUG), 1)
+ifeq ($(LOGGING), 1)
 ENABLE_LOGGING = -DENABLE_LOGGING
+OPTFLAGS =
 else
 ENABLE_LOGGING = 
-#-DENABLE_LOGGING
 endif
 
-COMMON_FLAGS = -mthumb -mcpu=cortex-m0plus -Os -g3 -D$(CHIP_FAMILY) -D__$(CHIP_VARIANT)__ -DBOARD_$(BOARD_NAME) $(ENABLE_LOGGING)
+ifeq ($(DEBUG), 1)
+OPTFLAGS =
+else
+OPTFLAGS = -Os
+endif
+
+COMMON_FLAGS = -mthumb -mcpu=cortex-m0plus $(OPTFLAGS) -g3 -D$(CHIP_FAMILY) -D__$(CHIP_VARIANT)__ -DBOARD_$(BOARD_NAME) $(ENABLE_LOGGING)
 
 WFLAGS = \
 -Wall -Werror
