@@ -356,7 +356,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                 }
 
                 //return the read register in the default fifo
-                dest->Write(encevent.reg, sizeof(encoderEvent));
+                dest->Write(encevent.reg, sizeof(encoderEvent));  // NOTE: order should probably be first
                 evt = new DelegateDataReady(req.getRequesterId());
             }
 

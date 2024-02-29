@@ -511,8 +511,8 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                 }
 
                 //return the read register in the default fifo
+                dest->Write(keyevent.reg, sizeof(keyEvent));    // NOTE: the write should probably be first
                 evt = new DelegateDataReady(req.getRequesterId());
-                dest->Write(keyevent.reg, sizeof(keyEvent));
             }
 
             QF::PUBLISH(evt, me);
