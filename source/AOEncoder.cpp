@@ -356,8 +356,8 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                 }
 
                 //return the read register in the default fifo
-                evt = new DelegateDataReady(req.getRequesterId());
                 dest->Write(encevent.reg, sizeof(encoderEvent));
+                evt = new DelegateDataReady(req.getRequesterId());
             }
 
             QF::PUBLISH(evt, me);
@@ -476,16 +476,16 @@ void CONFIG_ENCODER_HANDLER( void ) {
                 // or maybe one edge is missing, if missing then require the middle state
                 // this will reject bounces and false movements
                 if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 0) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 2) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = 1;
+                    enc_action = -1;
                  }
                  else if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 2) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 0) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = 1;
+                    enc_action = -1;
                  }
                  else if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 1) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 3) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = -1;
+                    enc_action = 1;
                  }
                  else if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 3) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 1) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = -1;
+                    enc_action = 1;
                  }
               
                  AOEncoder::m_enc_flags[encodernum] = 0; // reset for next time
