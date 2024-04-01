@@ -59,6 +59,7 @@ char const * const eventName[] = {
     "I2C_SLAVE_STOP_CFM",
     "I2C_SLAVE_REQUEST",
     "I2C_SLAVE_RECEIVE",
+    "I2C_SLAVE_ERROR",
     "I2C_SLAVE_STOP_CONDITION",
     "I2C_SLAVE_TIMEOUT",
 

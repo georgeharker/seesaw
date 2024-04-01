@@ -67,6 +67,7 @@ enum {
 	I2C_SLAVE_STOP_CFM,
 	I2C_SLAVE_REQUEST,
 	I2C_SLAVE_RECEIVE,
+	I2C_SLAVE_ERROR,
 	I2C_SLAVE_STOP_CONDITION,
 	I2C_SLAVE_TIMEOUT,
 
@@ -678,6 +679,13 @@ class I2CSlaveReceive : public Evt {
 	private:
 	uint8_t _highByte, _lowByte, _len;
 };
+
+class I2CSlaveError : public ErrorEvt {
+	public:
+	I2CSlaveError(Error error, Reason reason = 0) :
+	ErrorEvt(I2C_SLAVE_ERROR, 0 /* FIXME */, error, reason) {}
+};
+
 
 //* ==========================  KEYPAD ======================= *//
 

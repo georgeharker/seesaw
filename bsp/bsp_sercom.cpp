@@ -171,6 +171,11 @@ void initSlaveWIRE( Sercom *sercom, uint8_t ucAddress )
 
   // Set slave mode
   sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION;
+  sercom->I2CS.CTRLA.bit.SPEED = 0x1;   // Fast mode FM+ up to 1Mhz
+  sercom->I2CS.CTRLA.bit.SDAHOLD = 0x3; // 600ms
+  sercom->I2CS.CTRLA.bit.SCLSM = 0x0;   // Do not use smart mode
+  sercom->I2CS.CTRLA.bit.LOWTOUTEN = 0x0;   // Enable SCL low timeout
+  //sercom->I2CS.CTRLA.bit.SEXTTOEN = 0x1;  // Extend SCL low timeout
 
   sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR( ucAddress & 0x7Ful ) | // 0x7F, select only 7 bits
                           SERCOM_I2CS_ADDR_ADDRMASK( 0x00ul ) ;         // 0x00, only match exact address

@@ -45,14 +45,15 @@ Q_DEFINE_THIS_FILE
 using namespace FW;
 
 static Fifo *m_inFifo;
-static Fifo *m_outFifo;
+static Fifo * volatile m_outFifo;
 
 static Fifo *m_defaultOutFifo;
 
 static volatile bool slave_busy;
+static volatile bool sent_first_data_byte;
 
 static volatile uint8_t bytes_received, high_byte, low_byte;
-static volatile uint8_t bytes_send_pending;
+static volatile uint32_t bytes_send_pending;
 
 #if CONFIG_I2C_SLAVE_FLOW_CONTROL
 #if CONFIG_I2C_SLAVE_FLOW_CONTROL_PIN >= 32
@@ -99,6 +100,7 @@ QState I2CSlave::InitialPseudoState(I2CSlave * const me, QEvt const * const e) {
       
 	me->subscribe(I2C_SLAVE_REQUEST);
 	me->subscribe(I2C_SLAVE_RECEIVE);
+	me->subscribe(I2C_SLAVE_ERROR);
 	me->subscribe(I2C_SLAVE_STOP_CONDITION);
 	me->subscribe(I2C_SLAVE_TIMEOUT);
 	
@@ -269,6 +271,14 @@ QState I2CSlave::Started(I2CSlave * const me, QEvt const * const e) {
             break;
         }
 		case Q_INIT_SIG: {
+            // Perform some resets
+			slave_busy = false;
+			bytes_received = 0;
+            bytes_send_pending = 0;
+			
+			m_inFifo->Reset();
+			m_outFifo->Reset();
+
             status = Q_TRAN(&I2CSlave::Idle);
             break;
         }
@@ -299,8 +309,12 @@ QState I2CSlave::Started(I2CSlave * const me, QEvt const * const e) {
 				if(req.getFifo() != NULL){
 					Fifo * f = req.getFifo();
 					f->Reset();
+                    m_outFifo = f;
 				}
-				else m_outFifo->Reset();
+				else {
+                    m_outFifo = m_defaultOutFifo;
+                    m_outFifo->Reset();
+                }
 				status = Q_HANDLED();
 			}
 			else
@@ -380,6 +394,11 @@ QState I2CSlave::Idle(I2CSlave * const me, QEvt const * const e) {
 			
 			break;
 		}
+		case I2C_SLAVE_ERROR: {
+            // FIXME: should this do a more formal reset?
+			status = Q_TRAN(&I2CSlave::Started);
+			break;
+		}
         default: {
             status = Q_SUPER(&I2CSlave::Started);
             break;
@@ -408,15 +427,21 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
 		    LOG_EVENT(e);
 			DelegateDataReady const &req = static_cast<DelegateDataReady const &>(*e);
 			if(req.getRequesterId() == me->m_id){
+                Q_ASSERT(bytes_send_pending == 0);
 				if(req.getFifo() != NULL){
 					m_outFifo = req.getFifo();
                     #if ISR_LOG
                     PRINT("i2c delegate data ready %d bytes", m_outFifo->GetUsedCount());
                     #endif
-				}
+				} else {
+                    // If the request didn't have an explicit out fifo, reset
+                    m_outFifo = m_defaultOutFifo;
+                }
                 
-                // we got to the response interrupt too early, service now.
+                // Data ready now, enable the interrupt to handle it.
+                // Beware: this count may be more than previously reported ia COUNT
                 bytes_send_pending = m_outFifo->GetUsedCount();
+                sent_first_data_byte = true;
 
                 #if ISR_LOG
                 PRINT("Enable DRDY Interrupt 0 %d", bytes_send_pending);
@@ -432,6 +457,11 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
 		}
 		case I2C_SLAVE_TIMEOUT: {
 			status = Q_TRAN(&I2CSlave::Idle);
+			break;
+		}
+		case I2C_SLAVE_ERROR: {
+            // FIXME: should this do a more formal reset?
+			status = Q_TRAN(&I2CSlave::Started);
 			break;
 		}
 		case Q_EXIT_SIG: {
@@ -460,6 +490,11 @@ void I2CSlave::ReceiveCallback(uint8_t highByte, uint8_t lowByte, uint8_t len){
 	QF::PUBLISH(evt, 0);
 }
 
+void I2CSlave::ErrorCallback(){
+	Evt *evt = new I2CSlaveError(ERROR_UNSPEC);
+	QF::PUBLISH(evt, 0);
+}
+
 #if CONFIG_I2C_SLAVE
 
 extern "C" {
@@ -472,6 +507,11 @@ extern "C" {
             PRINT("AMATCH NACK");
             #endif
 		}
+        else if(isErrorDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM )) {
+            I2CSlave::ErrorCallback();
+            // Error condition, wait for stop
+            prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x02);
+        }
 		else if(isStopDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM ) ||
 		(isAddressMatch( CONFIG_I2C_SLAVE_SERCOM ) && isRestartDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM ) && !isMasterReadOperationWIRE( CONFIG_I2C_SLAVE_SERCOM ))) //Stop or Restart detected
 		{
@@ -490,7 +530,6 @@ extern "C" {
 			high_byte = 0;
 			low_byte = 0;
 			bytes_received = 0;
-            
         
             #if ISR_LOG
             bool ca = isStopDetectedWIRE( CONFIG_I2C_SLAVE_SERCOM );
@@ -522,22 +561,36 @@ extern "C" {
                 PRINT("DRDY read");
                 #endif
 
-                uint8_t c;
-                uint8_t count = m_outFifo->Read(&c, 1);
-
-                #if ISR_LOG
-                if (!count) {
-                    PRINT("Found empty buffer");    // FIXME: send an 0x02
-                }
-                PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
-                #endif
-
-                // FIXME: we're running out the buffer and then getting a zero count
-                sendDataSlaveWIRE(CONFIG_I2C_SLAVE_SERCOM, (count ? c : 0xff) );
-                if (--bytes_send_pending == 0) {
+                if (!sent_first_data_byte && isRXNackReceivedWIRE((CONFIG_I2C_SLAVE_SERCOM))) {
+                    // Most likely we advertized N events in queue via COUNT but
+                    // when we got to send via FIFO we had N + X - host was not expecting
+                    // this many.  This can also be an error condition via failure to ACK
+                    // data.
+                    // Wait for stop
                     prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x02);
-                } else {
-                    prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
+                }
+                else { 
+                    uint8_t c;
+                    uint8_t count = m_outFifo->Read(&c, 1);
+
+                    #if ISR_LOG
+                    if (!count) {
+                        // FIXME: send an 0x02 ? Issue is host expects some data count up to
+                        // bytes_send_pending (but possibly less)
+                        PRINT("Found empty buffer");
+                    }
+                    PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
+                    #endif
+
+                    // If we're running out the buffer, we still need to send something
+                    // This should not be occurring any more.
+                    sendDataSlaveWIRE(CONFIG_I2C_SLAVE_SERCOM, (count ? c : 0xff) );
+                    if (--bytes_send_pending == 0) {
+                        prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x02);
+                    } else {
+                        prepareCommandBitsWire(CONFIG_I2C_SLAVE_SERCOM, 0x03);
+                    }
+                    sent_first_data_byte = false;
                 }
 			}
 			else { //Received data

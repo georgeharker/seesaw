@@ -50,6 +50,7 @@ public:
     }
 	
 	static void ReceiveCallback(uint8_t highByte, uint8_t lowByte, uint8_t len);
+	static void ErrorCallback();
 
 protected:
     static QState InitialPseudoState(I2CSlave * const me, QEvt const * const e);
