@@ -56,56 +56,56 @@ Fifo *AOEncoder::m_fifo;
 #define INPUT_MASK_PORTB(pin_en, porta, pin) (((uint64_t)(pin_en) & ~(uint32_t)(porta)) << pin)
 
 #define ENCODER_INPUT_MASK_PORTA \
-    (INPUT_MASK_PORTA(CONFIG_ENCODER0, CONFIG_ENCODER0_PORTA, CONFIG_ENCODER0_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER1, CONFIG_ENCODER1_PORTA, CONFIG_ENCODER1_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER2, CONFIG_ENCODER2_PORTA, CONFIG_ENCODER2_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER3, CONFIG_ENCODER3_PORTA, CONFIG_ENCODER3_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER4, CONFIG_ENCODER4_PORTA, CONFIG_ENCODER4_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER5, CONFIG_ENCODER5_PORTA, CONFIG_ENCODER5_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER6, CONFIG_ENCODER6_PORTA, CONFIG_ENCODER6_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER7, CONFIG_ENCODER7_PORTA, CONFIG_ENCODER7_A_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER0, CONFIG_ENCODER0_PORTA, CONFIG_ENCODER0_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER1, CONFIG_ENCODER1_PORTA, CONFIG_ENCODER1_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER2, CONFIG_ENCODER2_PORTA, CONFIG_ENCODER2_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER3, CONFIG_ENCODER3_PORTA, CONFIG_ENCODER3_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER4, CONFIG_ENCODER4_PORTA, CONFIG_ENCODER4_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER5, CONFIG_ENCODER5_PORTA, CONFIG_ENCODER5_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER6, CONFIG_ENCODER6_PORTA, CONFIG_ENCODER6_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER7, CONFIG_ENCODER7_PORTA, CONFIG_ENCODER7_B_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER0, CONFIG_ENCODER0_PORTA, CONFIG_ENCODER0_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER1, CONFIG_ENCODER1_PORTA, CONFIG_ENCODER1_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER2, CONFIG_ENCODER2_PORTA, CONFIG_ENCODER2_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER3, CONFIG_ENCODER3_PORTA, CONFIG_ENCODER3_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER4, CONFIG_ENCODER4_PORTA, CONFIG_ENCODER4_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER5, CONFIG_ENCODER5_PORTA, CONFIG_ENCODER5_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER6, CONFIG_ENCODER6_PORTA, CONFIG_ENCODER6_SW_PIN) | \
-     INPUT_MASK_PORTA(CONFIG_ENCODER7, CONFIG_ENCODER7_PORTA, CONFIG_ENCODER7_SW_PIN))
+    (INPUT_MASK_PORTA(CONFIG_ENCODER0, CONFIG_ENCODER0_AB_PORTA, CONFIG_ENCODER0_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER1, CONFIG_ENCODER1_AB_PORTA, CONFIG_ENCODER1_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER2, CONFIG_ENCODER2_AB_PORTA, CONFIG_ENCODER2_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER3, CONFIG_ENCODER3_AB_PORTA, CONFIG_ENCODER3_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER4, CONFIG_ENCODER4_AB_PORTA, CONFIG_ENCODER4_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER5, CONFIG_ENCODER5_AB_PORTA, CONFIG_ENCODER5_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER6, CONFIG_ENCODER6_AB_PORTA, CONFIG_ENCODER6_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER7, CONFIG_ENCODER7_AB_PORTA, CONFIG_ENCODER7_A_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER0, CONFIG_ENCODER0_AB_PORTA, CONFIG_ENCODER0_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER1, CONFIG_ENCODER1_AB_PORTA, CONFIG_ENCODER1_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER2, CONFIG_ENCODER2_AB_PORTA, CONFIG_ENCODER2_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER3, CONFIG_ENCODER3_AB_PORTA, CONFIG_ENCODER3_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER4, CONFIG_ENCODER4_AB_PORTA, CONFIG_ENCODER4_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER5, CONFIG_ENCODER5_AB_PORTA, CONFIG_ENCODER5_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER6, CONFIG_ENCODER6_AB_PORTA, CONFIG_ENCODER6_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER7, CONFIG_ENCODER7_AB_PORTA, CONFIG_ENCODER7_B_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER0, CONFIG_ENCODER0_SW_PORTA, CONFIG_ENCODER0_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER1, CONFIG_ENCODER1_SW_PORTA, CONFIG_ENCODER1_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER2, CONFIG_ENCODER2_SW_PORTA, CONFIG_ENCODER2_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER3, CONFIG_ENCODER3_SW_PORTA, CONFIG_ENCODER3_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER4, CONFIG_ENCODER4_SW_PORTA, CONFIG_ENCODER4_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER5, CONFIG_ENCODER5_SW_PORTA, CONFIG_ENCODER5_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER6, CONFIG_ENCODER6_SW_PORTA, CONFIG_ENCODER6_SW_PIN) | \
+     INPUT_MASK_PORTA(CONFIG_ENCODER7, CONFIG_ENCODER7_SW_PORTA, CONFIG_ENCODER7_SW_PIN))
 
 #define ENCODER_INPUT_MASK_PORTB \
-    (INPUT_MASK_PORTB(CONFIG_ENCODER0, CONFIG_ENCODER0_PORTA, CONFIG_ENCODER0_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER1, CONFIG_ENCODER1_PORTA, CONFIG_ENCODER1_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER2, CONFIG_ENCODER2_PORTA, CONFIG_ENCODER2_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER3, CONFIG_ENCODER3_PORTA, CONFIG_ENCODER3_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER4, CONFIG_ENCODER4_PORTA, CONFIG_ENCODER4_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER5, CONFIG_ENCODER5_PORTA, CONFIG_ENCODER5_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER6, CONFIG_ENCODER6_PORTA, CONFIG_ENCODER6_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER7, CONFIG_ENCODER7_PORTA, CONFIG_ENCODER7_A_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER0, CONFIG_ENCODER0_PORTA, CONFIG_ENCODER0_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER1, CONFIG_ENCODER1_PORTA, CONFIG_ENCODER1_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER2, CONFIG_ENCODER2_PORTA, CONFIG_ENCODER2_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER3, CONFIG_ENCODER3_PORTA, CONFIG_ENCODER3_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER4, CONFIG_ENCODER4_PORTA, CONFIG_ENCODER4_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER5, CONFIG_ENCODER5_PORTA, CONFIG_ENCODER5_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER6, CONFIG_ENCODER6_PORTA, CONFIG_ENCODER6_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER7, CONFIG_ENCODER7_PORTA, CONFIG_ENCODER7_B_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER0, CONFIG_ENCODER0_PORTA, CONFIG_ENCODER0_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER1, CONFIG_ENCODER1_PORTA, CONFIG_ENCODER1_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER2, CONFIG_ENCODER2_PORTA, CONFIG_ENCODER2_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER3, CONFIG_ENCODER3_PORTA, CONFIG_ENCODER3_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER4, CONFIG_ENCODER4_PORTA, CONFIG_ENCODER4_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER5, CONFIG_ENCODER5_PORTA, CONFIG_ENCODER5_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER6, CONFIG_ENCODER6_PORTA, CONFIG_ENCODER6_SW_PIN) | \
-     INPUT_MASK_PORTB(CONFIG_ENCODER7, CONFIG_ENCODER7_PORTA, CONFIG_ENCODER7_SW_PIN))
+    (INPUT_MASK_PORTB(CONFIG_ENCODER0, CONFIG_ENCODER0_AB_PORTA, CONFIG_ENCODER0_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER1, CONFIG_ENCODER1_AB_PORTA, CONFIG_ENCODER1_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER2, CONFIG_ENCODER2_AB_PORTA, CONFIG_ENCODER2_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER3, CONFIG_ENCODER3_AB_PORTA, CONFIG_ENCODER3_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER4, CONFIG_ENCODER4_AB_PORTA, CONFIG_ENCODER4_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER5, CONFIG_ENCODER5_AB_PORTA, CONFIG_ENCODER5_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER6, CONFIG_ENCODER6_AB_PORTA, CONFIG_ENCODER6_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER7, CONFIG_ENCODER7_AB_PORTA, CONFIG_ENCODER7_A_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER0, CONFIG_ENCODER0_AB_PORTA, CONFIG_ENCODER0_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER1, CONFIG_ENCODER1_AB_PORTA, CONFIG_ENCODER1_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER2, CONFIG_ENCODER2_AB_PORTA, CONFIG_ENCODER2_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER3, CONFIG_ENCODER3_AB_PORTA, CONFIG_ENCODER3_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER4, CONFIG_ENCODER4_AB_PORTA, CONFIG_ENCODER4_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER5, CONFIG_ENCODER5_AB_PORTA, CONFIG_ENCODER5_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER6, CONFIG_ENCODER6_AB_PORTA, CONFIG_ENCODER6_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER7, CONFIG_ENCODER7_AB_PORTA, CONFIG_ENCODER7_B_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER0, CONFIG_ENCODER0_SW_PORTA, CONFIG_ENCODER0_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER1, CONFIG_ENCODER1_SW_PORTA, CONFIG_ENCODER1_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER2, CONFIG_ENCODER2_SW_PORTA, CONFIG_ENCODER2_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER3, CONFIG_ENCODER3_SW_PORTA, CONFIG_ENCODER3_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER4, CONFIG_ENCODER4_SW_PORTA, CONFIG_ENCODER4_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER5, CONFIG_ENCODER5_SW_PORTA, CONFIG_ENCODER5_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER6, CONFIG_ENCODER6_SW_PORTA, CONFIG_ENCODER6_SW_PIN) | \
+     INPUT_MASK_PORTB(CONFIG_ENCODER7, CONFIG_ENCODER7_SW_PORTA, CONFIG_ENCODER7_SW_PIN))
 
 uint32_t encoder_a_pins[] = {
         CONFIG_ENCODER0_A_PIN,
@@ -137,15 +137,25 @@ uint32_t encoder_sw_pins[] = {
         CONFIG_ENCODER6_SW_PIN,
         CONFIG_ENCODER7_SW_PIN
      };
-uint32_t encoder_porta[] = {
-        CONFIG_ENCODER0_PORTA,
-        CONFIG_ENCODER1_PORTA,
-        CONFIG_ENCODER2_PORTA,
-        CONFIG_ENCODER3_PORTA,
-        CONFIG_ENCODER4_PORTA,
-        CONFIG_ENCODER5_PORTA,
-        CONFIG_ENCODER6_PORTA,
-        CONFIG_ENCODER7_PORTA
+uint32_t encoder_ab_porta[] = {
+        CONFIG_ENCODER0_AB_PORTA,
+        CONFIG_ENCODER1_AB_PORTA,
+        CONFIG_ENCODER2_AB_PORTA,
+        CONFIG_ENCODER3_AB_PORTA,
+        CONFIG_ENCODER4_AB_PORTA,
+        CONFIG_ENCODER5_AB_PORTA,
+        CONFIG_ENCODER6_AB_PORTA,
+        CONFIG_ENCODER7_AB_PORTA
+     };
+uint32_t encoder_sw_porta[] = {
+        CONFIG_ENCODER0_SW_PORTA,
+        CONFIG_ENCODER1_SW_PORTA,
+        CONFIG_ENCODER2_SW_PORTA,
+        CONFIG_ENCODER3_SW_PORTA,
+        CONFIG_ENCODER4_SW_PORTA,
+        CONFIG_ENCODER5_SW_PORTA,
+        CONFIG_ENCODER6_SW_PORTA,
+        CONFIG_ENCODER7_SW_PORTA
      };
 
 volatile int32_t AOEncoder::m_value[CONFIG_NUM_ENCODERS];
@@ -297,6 +307,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
             Evt *evt;
 
             if (reg == SEESAW_ENCODER_FIFO) {
+                // FIXME: this should not be encoder specific
                 if (encodernum < CONFIG_NUM_ENCODERS) {
                     if (AOEncoder::m_status[encodernum].bit.DATA_RDY){
                         if(AOEncoder::m_inten[encodernum].bit.DATA_RDY){
@@ -310,6 +321,16 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
 
                 //give the requester our pipe
                 evt = new DelegateDataReady(req.getRequesterId(), me->m_fifo);
+            } else if (reg == SEESAW_ENCODER_COUNT) {
+                encoderEvent encevent = {0};
+                encevent.bit.TYPE = ENCODER_TYPE_COUNT;
+                encevent.bit.count.__PACK = 0x99;       // FIXME 0
+                // NOTE: is this potentially approximate
+                encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / sizeof(encoderEvent);
+                    
+                //return the read register in the default fifo
+                dest->Write(encevent.reg, sizeof(encoderEvent));  // NOTE: order should probably be first
+                evt = new DelegateDataReady(req.getRequesterId());
             } else {
                 encoderEvent encevent = {0};
                 encevent.bit.TYPE = ENCODER_TYPE_INVALID;
@@ -337,14 +358,6 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                             encevent.bit.TYPE = ENCODER_TYPE_DELTA;
                             encevent.bit.value.VALUE = static_cast<uint32_t>(AOEncoder::m_delta[encodernum]);
                             encevent.bit.value.ENCODER = static_cast<uint8_t>(encodernum);
-                            break;
-                        }
-                        
-                        case SEESAW_ENCODER_COUNT:
-                        {
-                            encevent.bit.TYPE = ENCODER_TYPE_COUNT;
-                            // NOTE: is this potentially approximate
-                            encevent.bit.count.COUNT = me->m_fifo->GetUsedCount() / sizeof(encoderEvent);
                             break;
                         }
                         
@@ -434,14 +447,17 @@ void CONFIG_ENCODER_HANDLER( void ) {
   
         uint8_t enc_cur_state = 0;
         // read in the encoder state first
-        if (encoder_porta[encodernum]) {
+        if (encoder_ab_porta[encodernum]) {
             enc_cur_state |= (((BIT_IS_CLEAR(in_a, encoder_a_pins[encodernum])) << 0) | 
-                              ((BIT_IS_CLEAR(in_a, encoder_b_pins[encodernum])) << 1) |
-                              ((BIT_IS_CLEAR(in_a, encoder_sw_pins[encodernum])) << 2));
+                              ((BIT_IS_CLEAR(in_a, encoder_b_pins[encodernum])) << 1));
         } else {
             enc_cur_state |= (((BIT_IS_CLEAR(in_b, encoder_a_pins[encodernum])) << 0) |
-                              ((BIT_IS_CLEAR(in_b, encoder_b_pins[encodernum])) << 1) |
-                              ((BIT_IS_CLEAR(in_b, encoder_sw_pins[encodernum])) << 2));
+                              ((BIT_IS_CLEAR(in_b, encoder_b_pins[encodernum])) << 1));
+        }
+        if (encoder_sw_porta[encodernum]) {
+            enc_cur_state |= ((BIT_IS_CLEAR(in_a, encoder_sw_pins[encodernum])) << 2);
+        } else {
+            enc_cur_state |= ((BIT_IS_CLEAR(in_b, encoder_sw_pins[encodernum])) << 2);
         }
 
         // if any rotation at all
@@ -476,16 +492,16 @@ void CONFIG_ENCODER_HANDLER( void ) {
                 // or maybe one edge is missing, if missing then require the middle state
                 // this will reject bounces and false movements
                 if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 0) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 2) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = -1;
+                    enc_action = 1;
                  }
                  else if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 2) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 0) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = -1;
+                    enc_action = 1;
                  }
                  else if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 1) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 3) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = 1;
+                    enc_action = -1;
                  }
                  else if (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 3) && (BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 1) || BIT_IS_SET(AOEncoder::m_enc_flags[encodernum], 4))) {
-                    enc_action = 1;
+                    enc_action = -1;
                  }
               
                  AOEncoder::m_enc_flags[encodernum] = 0; // reset for next time
@@ -529,7 +545,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
         if (!enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_LOW))) {
             encevent.bit.TYPE = ENCODER_TYPE_PRESS;
             encevent.bit.press.ENCODER = encodernum;
-            encevent.bit.press.EDGE= ENCODER_EDGE_LOW;
+            encevent.bit.press.EDGE = ENCODER_EDGE_LOW;
             interrupt = true;
         
             AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
