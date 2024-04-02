@@ -123,6 +123,22 @@ QState Neopixel::Stopped(Neopixel * const me, QEvt const * const e) {
 			Evt *evt = new NeopixelStartCfm(req.GetSeq(), ERROR_SUCCESS);
 			QF::PUBLISH(evt, me);
 			
+#if 0
+			for (int i = 0; i < 8; ++i) {
+                // GBRW
+                PixelData[i * 3 + 0] = 0;
+                PixelData[i * 3 + 1] = int(255 - 255 * i / 8);
+                PixelData[i * 3 + 2] = int(255 * i / 8);
+            }
+            gpio_init(PORTA, 0, 1);
+			me->m_pixelDataSize = 3 * 8;
+            me->m_pin = 0;
+			QF_CRIT_STAT_TYPE crit;
+			QF_CRIT_ENTRY(crit);
+			neopix_show_800k(me->m_pin, PixelData, me->m_pixelDataSize);
+			QF_CRIT_EXIT(crit);
+#endif
+
 			status = Q_TRAN(&Neopixel::Started);
             break;
         }
