@@ -165,6 +165,11 @@ inline bool isRXNackReceivedWIRE(  Sercom *sercom )
 	return sercom->I2CS.STATUS.bit.RXNACK;
 }
 
+inline bool isClockStretchedWIRE(  Sercom *sercom )
+{
+	return sercom->I2CS.STATUS.bit.CLKHOLD;
+}
+
 int availableWIRE(  Sercom *sercom );
 
 void prepareNackBitWIRE( Sercom *sercom );

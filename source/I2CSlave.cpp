@@ -87,6 +87,19 @@ static volatile uint32_t bytes_send_pending;
 
 #define ISR_LOG 0
 
+__attribute__ ( ( section (  ".ramfunc " ) ) ) void delay_us ( uint32_t n )
+{
+	__asm (
+	   "mydelay: \n "
+	   " mov  r1, #15    \n "  // 1 cycle
+	   "mydelay1: \n "
+	   " sub  r1, r1, #1 \n "  // 1 cycle
+	   " bne  mydelay1    \n " // 2 if taken, 1 otherwise
+	   " sub  r0, r0, #1 \n "  // 1 cycle
+	   " bne  mydelay    \n "  // 2 if taken, 1 otherwise
+	);
+}
+
 I2CSlave::I2CSlave( Sercom *sercom) :
     QActive((QStateHandler)&I2CSlave::InitialPseudoState), 
     m_id(I2C_SLAVE), m_name("I2C Slave"), m_sercom(sercom),
@@ -298,7 +311,7 @@ QState I2CSlave::Started(I2CSlave * const me, QEvt const * const e) {
 		}
 		case DELEGATE_DATA_READY:{
 			DelegateDataReady const &req = static_cast<DelegateDataReady const &>(*e);
-			
+            
 			//a timeout must have occured, toss out any data
             
             #if ISR_LOG
@@ -582,7 +595,16 @@ extern "C" {
                     PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
                     #endif
 
-                    // If we're running out the buffer, we still need to send something
+                    // FIXME: grotesque workaround for raspi clock stretch bug
+                    // FIXME: it is not clear why this has to be in the isr send
+                    // // which is additionally vile
+                    if (isClockStretchedWIRE(CONFIG_I2C_SLAVE_SERCOM)) {
+                        // Clock stretching must be greater than half clock cycle
+                        delay_us(2);
+                    }
+
+                    // If we're running out the buffer, we still need to
+                    // send something
                     // This should not be occurring any more.
                     sendDataSlaveWIRE(CONFIG_I2C_SLAVE_SERCOM, (count ? c : 0xff) );
                     if (--bytes_send_pending == 0) {
@@ -601,7 +623,7 @@ extern "C" {
                 #endif
 
 				bytes_received++;
-				
+                
 				if(bytes_received == 1) high_byte = c;
 				else if(bytes_received == 2) low_byte = c;
 				else{
