@@ -172,7 +172,9 @@ void initSlaveWIRE( Sercom *sercom, uint8_t ucAddress )
   // Set slave mode
   sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION;
   sercom->I2CS.CTRLA.bit.SPEED = 0x1;   // Fast mode FM+ up to 1Mhz
-  sercom->I2CS.CTRLA.bit.SDAHOLD = 0x3; // 600ms
+  sercom->I2CS.CTRLA.bit.SDAHOLD = 0x3; // 600ns
+  //sercom->I2CS.CTRLA.bit.SDAHOLD = 0x2; // 450ns
+  //sercom->I2CS.CTRLA.bit.SDAHOLD = 0x1; // 75ns
   sercom->I2CS.CTRLA.bit.SCLSM = 0x0;   // Do not use smart mode
   sercom->I2CS.CTRLA.bit.LOWTOUTEN = 0x0;   // Enable SCL low timeout
   //sercom->I2CS.CTRLA.bit.SEXTTOEN = 0x1;  // Extend SCL low timeout
