@@ -460,7 +460,18 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
                 PRINT("Enable DRDY Interrupt 0 %d", bytes_send_pending);
                 #endif
                 
+                #if 1
+                // FIXME: grotesque workaround for raspi clock stretch bug
+                QF_CRIT_STAT_TYPE crit;
+                QF_CRIT_ENTRY(crit);
                 enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
+                // Clock stretching must be greater than half clock cycle
+                // which at 100KHz is 10us, 400Khz is 2.5us
+                delay_us(2);
+                QF_CRIT_EXIT(crit);
+                #endif
+                enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
+                #else
 
 				status = Q_TRAN(&I2CSlave::Idle);
 			}
@@ -595,14 +606,16 @@ extern "C" {
                     PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
                     #endif
 
+                    #if 0
                     // FIXME: grotesque workaround for raspi clock stretch bug
                     // FIXME: it is not clear why this has to be in the isr send
-                    // // which is additionally vile
+                    // which is additionally vile
                     if (isClockStretchedWIRE(CONFIG_I2C_SLAVE_SERCOM)) {
                         // Clock stretching must be greater than half clock cycle
                         delay_us(2);
                     }
-
+                    #endif
+                    
                     // If we're running out the buffer, we still need to
                     // send something
                     // This should not be occurring any more.
