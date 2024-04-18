@@ -469,9 +469,9 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
                 // which at 100KHz is 10us, 400Khz is 2.5us
                 delay_us(2);
                 QF_CRIT_EXIT(crit);
-                #endif
-                enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
                 #else
+                enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
+                #endif
 
 				status = Q_TRAN(&I2CSlave::Idle);
 			}
