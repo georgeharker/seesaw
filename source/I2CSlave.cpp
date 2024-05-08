@@ -86,6 +86,7 @@ static volatile uint32_t bytes_send_pending;
 #endif
 
 #define ISR_LOG 0
+#define CLOCK_STRETCH_WAIT_US 3
 
 __attribute__ ( ( section (  ".ramfunc " ) ) ) void delay_us ( uint32_t n )
 {
@@ -612,7 +613,7 @@ extern "C" {
                     // which is additionally vile
                     if (isClockStretchedWIRE(CONFIG_I2C_SLAVE_SERCOM)) {
                         // Clock stretching must be greater than half clock cycle
-                        delay_us(2);
+                        delay_us(CLOCK_STRETCH_WAIT_US);
                     }
                     #endif
                     
