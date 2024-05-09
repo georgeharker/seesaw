@@ -468,7 +468,7 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
                 enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
                 // Clock stretching must be greater than half clock cycle
                 // which at 100KHz is 10us, 400Khz is 2.5us
-                delay_us(2);
+                delay_us(CLOCK_STRETCH_WAIT_US);
                 QF_CRIT_EXIT(crit);
                 #else
                 enableDataReadyInterruptWIRE(CONFIG_I2C_SLAVE_SERCOM);
