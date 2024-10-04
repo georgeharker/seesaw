@@ -8,7 +8,7 @@
 
 #define CONFIG_NO_ADDR 1
 #define CONFIG_NO_ACTIVITY_LED
-#define CONFIG_NO_EEPROM
+//#define CONFIG_NO_EEPROM
 
 // #define CONFIG_ADDR_2 1
 // #define CONFIG_ADDR_3 1
