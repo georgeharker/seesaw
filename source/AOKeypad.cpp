@@ -140,7 +140,7 @@ static_assert(sizeof(keyEvent) == 2, "keyEvent must be 2 bytes");
                             | (CONFIG_KEYPAD_ROW1 << 1) | (CONFIG_KEYPAD_ROW0) )
                     
 #define KEYPAD_ACTIVE_COLS (  (CONFIG_KEYPAD_COL7 << 7) | (CONFIG_KEYPAD_COL6 << 6) \
-                            | (CONFIG_KEYPAD_COL3 << 5) | (CONFIG_KEYPAD_COL2 << 4) \
+                            | (CONFIG_KEYPAD_COL5 << 5) | (CONFIG_KEYPAD_COL4 << 4) \
                             | (CONFIG_KEYPAD_COL3 << 3) | (CONFIG_KEYPAD_COL2 << 2) \
                             | (CONFIG_KEYPAD_COL1 << 1) | (CONFIG_KEYPAD_COL0) )
 
