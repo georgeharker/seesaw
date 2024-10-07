@@ -86,7 +86,15 @@ static volatile uint32_t bytes_send_pending;
 #endif
 
 #define ISR_LOG 0
+
 #define CLOCK_STRETCH_WAIT_US 3
+// 0 - none
+// 1 - fix in ISR
+// 2 = fix in DelegateDataReady
+#define CLOCK_STRETCH_FIX_MODE_NONE 0
+#define CLOCK_STRETCH_FIX_MODE_ISR 1
+#define CLOCK_STRETCH_FIX_MODE_DDR 2
+#define CLOCK_STRETCH_FIX_MODE CLOCK_STRETCH_FIX_MODE_ISR
 
 __attribute__ ( ( section (  ".ramfunc " ) ) ) void delay_us ( uint32_t n )
 {
@@ -461,7 +469,7 @@ QState I2CSlave::Busy(I2CSlave * const me, QEvt const * const e) {
                 PRINT("Enable DRDY Interrupt 0 %d", bytes_send_pending);
                 #endif
                 
-                #if 1
+                #if CLOCK_STRETCH_FIX_MODE == CLOCK_STRETCH_FIX_MODE_DDR
                 // FIXME: grotesque workaround for raspi clock stretch bug
                 QF_CRIT_STAT_TYPE crit;
                 QF_CRIT_ENTRY(crit);
@@ -607,7 +615,7 @@ extern "C" {
                     PRINT("sending data %d  0x%0x (%d)", count, c, bytes_send_pending);
                     #endif
 
-                    #if 0
+                    #if CLOCK_STRETCH_FIX_MODE == CLOCK_STRETCH_FIX_MODE_ISR
                     // FIXME: grotesque workaround for raspi clock stretch bug
                     // FIXME: it is not clear why this has to be in the isr send
                     // which is additionally vile
