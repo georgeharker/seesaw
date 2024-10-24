@@ -144,9 +144,7 @@ static_assert(sizeof(keyEvent) == 2, "keyEvent must be 2 bytes");
                             | (CONFIG_KEYPAD_COL3 << 3) | (CONFIG_KEYPAD_COL2 << 2) \
                             | (CONFIG_KEYPAD_COL1 << 1) | (CONFIG_KEYPAD_COL0) )
 
-#define KEYPAD_EVENT_TO_ROW(e) ( (e)/8 )
-#define KEYPAD_EVENT_TO_COL(e) ( (e)%8 )
-#define KEYPAD_EVENT(r, c) ( (r)*8 + (c) )
+#define KEYPAD_EVENT(r, c) ( (r)*CONFIG_KEYPAD_NUM_COLS + (c) )
 
 #define KEYPAD_HIGH (1 << KEYPAD_EDGE_HIGH)
 #define KEYPAD_LOW (1 << KEYPAD_EDGE_LOW)

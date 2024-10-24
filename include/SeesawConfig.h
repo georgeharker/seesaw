@@ -766,6 +766,14 @@
 #define KEYPAD_SCAN_ROWS 1
 #endif
 
+#ifndef CONFIG_KEYPAD_NUM_ROWS
+#define CONFIG_KEYPAD_NUM_ROWS 8
+#endif
+
+#ifndef CONFIG_KEYPAD_NUM_COLS
+#define CONFIG_KEYPAD_NUM_COLS 8
+#endif
+
 //* =========== ENCODER ================ *//
 #ifndef CONFIG_ENCODER
 #define CONFIG_ENCODER 0

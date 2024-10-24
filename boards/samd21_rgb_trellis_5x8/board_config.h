@@ -191,6 +191,9 @@
 
 #define KEYPAD_SCAN_ROWS 0
 
+#define CONFIG_KEYPAD_NUM_ROWS 8
+#define CONFIG_KEYPAD_NUM_COLS 5
+
 
 //* ============== SWO =================== *//
 
