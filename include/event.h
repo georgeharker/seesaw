@@ -127,6 +127,7 @@ enum {
 	NEOPIXEL_SET_BUFFER_REQ,
 	NEOPIXEL_SET_BUFFER_LEN_REQ,
 	NEOPIXEL_SHOW_REQ,
+	NEOPIXEL_SET_PARTIAL_BUFFER_REQ,
 
 	TOUCH_START_REQ,
     TOUCH_START_CFM,
@@ -501,6 +502,18 @@ class NeopixelSetBufferReq : public Evt {
 	Fifo *getSource() const { return _source; }
 	private:
 	uint16_t _addr;
+	Fifo *_source;
+};
+
+class NeopixelSetPartialBufferReq : public Evt {
+	public:
+	NeopixelSetPartialBufferReq(uint8_t bpp, Fifo *source) :
+	Evt(NEOPIXEL_SET_PARTIAL_BUFFER_REQ), _bpp(bpp), _source(source){}
+
+	uint8_t getBpp() const { return _bpp; }
+	Fifo *getSource() const { return _source; }
+	private:
+	uint8_t _bpp;
 	Fifo *_source;
 };
 

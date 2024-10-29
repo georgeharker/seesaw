@@ -234,6 +234,10 @@
 	
 	/****** SHOW *****/
 	#define SEESAW_NEOPIXEL_SHOW 0x05
+	
+    /****** PARTIAL BUFFER DATA *****/
+	#define SEESAW_PARTIAL_NEOPIXEL_BUF 0x06
+	
 
 #endif
 

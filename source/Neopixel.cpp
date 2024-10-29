@@ -226,6 +226,31 @@ QState Neopixel::Started(Neopixel * const me, QEvt const * const e) {
 			status = Q_HANDLED();
 			break;
 		}
+		case NEOPIXEL_SET_PARTIAL_BUFFER_REQ: {
+		    LOG_EVENT(e);
+			NeopixelSetPartialBufferReq const &req = static_cast<NeopixelSetPartialBufferReq const &>(*e);
+			uint8_t bpp = req.getBpp();
+			Fifo *fifo = req.getSource();
+			uint16_t len = fifo->GetUsedCount();
+			len = (len > CONFIG_NEOPIXEL_BUF_MAX ? CONFIG_NEOPIXEL_BUF_MAX : len);
+			
+            while (len) {
+                uint8_t index;
+			    fifo->Read(&index, 1);
+                if (index * bpp < CONFIG_NEOPIXEL_BUF_MAX)
+    			    fifo->Read(PixelData + index * bpp, bpp);
+                else {
+                    break;
+                }
+                len -= bpp + 1;
+            }
+			
+			//discard any extra data
+			fifo->Reset();
+			
+			status = Q_HANDLED();
+			break;
+		}
 		case NEOPIXEL_SHOW_REQ: {
 		    LOG_EVENT(e);
 			QF_CRIT_STAT_TYPE crit;

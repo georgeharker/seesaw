@@ -747,6 +747,15 @@ QState Delegate::Started(Delegate * const me, QEvt const * const e) {
 								QF::PUBLISH(evt, me);
 							}
 							break;
+							
+                            case SEESAW_PARTIAL_NEOPIXEL_BUF:{
+								uint8_t d[1];
+								fifo->Read(d, 1);
+								
+								Evt *evt = new NeopixelSetPartialBufferReq(d[0], fifo);
+								QF::PUBLISH(evt, me);
+							}
+							break;
 						}
 						break;
 					}
