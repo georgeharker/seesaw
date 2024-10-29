@@ -60,6 +60,7 @@ QState Neopixel::InitialPseudoState(Neopixel * const me, QEvt const * const e) {
 	me->subscribe(NEOPIXEL_SET_BUFFER_LEN_REQ);
 	me->subscribe(NEOPIXEL_SET_BUFFER_REQ);
 	me->subscribe(NEOPIXEL_SHOW_REQ);
+	me->subscribe(NEOPIXEL_SET_PARTIAL_BUFFER_REQ);
       
     return Q_TRAN(&Neopixel::Root);
 }
@@ -232,9 +233,8 @@ QState Neopixel::Started(Neopixel * const me, QEvt const * const e) {
 			uint8_t bpp = req.getBpp();
 			Fifo *fifo = req.getSource();
 			uint16_t len = fifo->GetUsedCount();
-			len = (len > CONFIG_NEOPIXEL_BUF_MAX ? CONFIG_NEOPIXEL_BUF_MAX : len);
 			
-            while (len) {
+            while (len > 0) {
                 uint8_t index;
 			    fifo->Read(&index, 1);
                 if (index * bpp < CONFIG_NEOPIXEL_BUF_MAX)
