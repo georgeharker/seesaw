@@ -387,6 +387,7 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             uint32_t ina, inb;
             bool val;
             keyEvent keyevent;
+            bool new_data = false;
             #if KEYPAD_SCAN_ROWS
             for(int i=0; i<KEYPAD_MAX_ROWS; i++){
                 if((1 << i) & KEYPAD_ACTIVE_ROWS){
@@ -432,18 +433,22 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                             if(ks->bit.ACTIVE & KEYPAD_HIGH && val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_HIGH;
                                 me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
+                                new_data = true;
                             }
                             if(ks->bit.ACTIVE & KEYPAD_LOW && !val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_LOW;
                                 me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
+                                new_data = true;
                             }
                             if(ks->bit.ACTIVE & KEYPAD_RISING && !ks->bit.STATE && val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_RISING;
                                 me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
+                                new_data = true;
                             }
                             if(ks->bit.ACTIVE & KEYPAD_FALLING && ks->bit.STATE && !val){
                                 keyevent.bit.key.EDGE = KEYPAD_EDGE_FALLING;
                                 me->m_fifo->Write(keyevent.reg, sizeof(keyEvent));
+                                new_data = true;
                             }
 
                             ks->bit.STATE = val;
@@ -458,8 +463,8 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
                 }
             }
 
-            //create an interrupt if there are events in the FIFO
-            if(me->m_fifo->GetUsedCount() > 0){
+            // create an interrupt if there are _new_ events in the FIFO
+            if (new_data) {
                 me->m_status.bit.DATA_RDY = 1;
                 if(me->m_inten.bit.DATA_RDY){
                     //post an interrupt event
@@ -480,9 +485,9 @@ QState AOKeypad::Started(AOKeypad * const me, QEvt const * const e) {
             Evt *evt;
 
             if(reg == SEESAW_KEYPAD_FIFO){
-                me->m_status.bit.DATA_RDY = 0;
-                if(me->m_inten.bit.DATA_RDY){
-                    //post an interrupt event
+                if (me->m_inten.bit.DATA_RDY) {
+                    me->m_status.bit.DATA_RDY = 0;
+                    // Clear the interrupt event
                     evt = new InterruptClearReq( SEESAW_INTERRUPT_KEYPAD_DATA_RDY );
                     QF::PUBLISH(evt, me);
                 }
