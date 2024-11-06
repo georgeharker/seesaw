@@ -58,7 +58,7 @@
 
 //* ============== INTERRUPT =================== *//
 #define CONFIG_INTERRUPT 1
-#define CONFIG_INTERRUPT_PIN 19
+#define CONFIG_INTERRUPT_PIN 21
 
 #define CONFIG_INTERRUPT_OPEN_DRAIN 1
 

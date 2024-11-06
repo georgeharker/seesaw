@@ -781,7 +781,7 @@ QState Delegate::Started(Delegate * const me, QEvt const * const e) {
 						fifo->Read(dataBytes, 4);
 						len-=4;
 
-						int32_t combined = ((int32_t)dataBytes[0] << 24) | ((int32_t)dataBytes[1] << 16) | ((int32_t)dataBytes[2] << 8) | (int32_t)dataBytes[3];
+						int32_t combined = ((int32_t)dataBytes[3] << 24) | ((int32_t)dataBytes[2] << 16) | ((int32_t)dataBytes[1] << 8) | (int32_t)dataBytes[0];
 						
 						Evt *evt = new EncoderWriteRegReq(lowByte, combined);
 						QF::PUBLISH(evt, me);

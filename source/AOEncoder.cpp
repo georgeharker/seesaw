@@ -307,16 +307,19 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
             Evt *evt;
 
             if (reg == SEESAW_ENCODER_FIFO) {
-                // FIXME: this should not be encoder specific
-                if (encodernum < CONFIG_NUM_ENCODERS) {
+                bool clear = false;
+                for (uint8_t encodernum = 0; encodernum < CONFIG_NUM_ENCODERS; encodernum++) {
                     if (AOEncoder::m_status[encodernum].bit.DATA_RDY){
                         if(AOEncoder::m_inten[encodernum].bit.DATA_RDY){
-                            // post an interrupt event
-                            evt = new InterruptClearReq( SEESAW_INTERRUPT_ENCODER_DATA_RDY );
-                            QF::PUBLISH(evt, me);
+                            clear = true;
                         }
                         AOEncoder::m_status[encodernum].bit.DATA_RDY = 0;
                     }
+                }
+                if (clear) {
+                    // post an interrupt event
+                    evt = new InterruptClearReq( SEESAW_INTERRUPT_ENCODER_DATA_RDY );
+                    QF::PUBLISH(evt, me);
                 }
 
                 //give the requester our pipe
@@ -383,13 +386,12 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
             // FIXME: use the keyEvent structure
             LOG_EVENT(e);
             EncoderWriteRegReq const &req = static_cast<EncoderWriteRegReq const &>(*e);
-            int32_t c = req.getValue();
-
-            uint8_t encodernum =  c & 0x0F;
-            uint32_t value = (c & 0xFFFFFFF0) >> 4;
+            uint8_t reg = req.getReg() & 0xF0;
+            uint8_t encodernum = req.getReg() & 0x0F;
+            int32_t value = req.getValue();
             
             if (encodernum < CONFIG_NUM_ENCODERS) {
-                switch (req.getReg()) {
+                switch (reg) {
                     case SEESAW_ENCODER_EVENT:
                     {
                         //turn an event on or off
@@ -397,8 +399,7 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
                         es = &me->m_status[encodernum];
 
                         // Value is:
-                        // enc bits 0-3
-                        // edge 4-9
+                        // edge 0-8
                         // enable 16
 
                         if(value & (0x01 << 16)) //activate the selected edges
@@ -411,6 +412,9 @@ QState AOEncoder::Started(AOEncoder * const me, QEvt const * const e) {
 
                     case SEESAW_ENCODER_POSITION:
                         AOEncoder::m_value[encodernum] = value;
+                        break;
+                    case SEESAW_ENCODER_DELTA:
+                        AOEncoder::m_delta[encodernum] = value;
                         break;
                     case SEESAW_ENCODER_INTENSET:
                         me->m_inten[encodernum].reg |= value;
@@ -441,9 +445,11 @@ void CONFIG_ENCODER_HANDLER( void ) {
     uint32_t in_a = gpio_read_bulk(PORTA) & mask;
     mask = ENCODER_INPUT_MASK_PORTB;
     uint32_t in_b = gpio_read_bulk(PORTB) & mask;
+    bool interrupt[CONFIG_NUM_ENCODERS];
 
     for (uint8_t encodernum = 0; encodernum < CONFIG_NUM_ENCODERS; encodernum++) {
         int8_t enc_action = 0; // 1 or -1 if moved, sign is direction
+        interrupt[encodernum] = false;
   
         uint8_t enc_cur_state = 0;
         // read in the encoder state first
@@ -533,12 +539,12 @@ void CONFIG_ENCODER_HANDLER( void ) {
         uint8_t enc_cur_sw = enc_cur_state & 0x04;
         uint8_t enc_prev_sw = AOEncoder::m_enc_prev_state[encodernum] & 0x04;
 
-        bool interrupt = false;
+        bool press_event = false;
         if (enc_cur_sw && (AOEncoder::m_status[encodernum].bit.ACTIVE & (1 << ENCODER_EDGE_HIGH))) {
             encevent.bit.TYPE = ENCODER_TYPE_PRESS;
             encevent.bit.press.ENCODER = encodernum;
             encevent.bit.press.EDGE = ENCODER_EDGE_HIGH;
-            interrupt = true;
+            press_event = true;
         
             AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
         }
@@ -546,7 +552,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
             encevent.bit.TYPE = ENCODER_TYPE_PRESS;
             encevent.bit.press.ENCODER = encodernum;
             encevent.bit.press.EDGE = ENCODER_EDGE_LOW;
-            interrupt = true;
+            press_event = true;
         
             AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
         }
@@ -555,7 +561,7 @@ void CONFIG_ENCODER_HANDLER( void ) {
                 encevent.bit.TYPE = ENCODER_TYPE_PRESS;
                 encevent.bit.press.ENCODER = encodernum;
                 encevent.bit.press.EDGE = ENCODER_EDGE_RISING;
-                interrupt = true;
+                press_event = true;
             
                 AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
             }
@@ -563,32 +569,33 @@ void CONFIG_ENCODER_HANDLER( void ) {
                 encevent.bit.TYPE = ENCODER_TYPE_PRESS;
                 encevent.bit.press.ENCODER = encodernum;
                 encevent.bit.press.EDGE = ENCODER_EDGE_FALLING;
-                interrupt = true;
+                press_event = true;
             
                 AOEncoder::m_fifo->Write(encevent.reg, sizeof(encoderEvent));
             }
 
         }
     
+        interrupt[encodernum] = (enc_action != 0 || press_event);
+        
+        // Record the previous state
+        AOEncoder::m_enc_prev_state[encodernum] = enc_cur_state;
+    }
 
-        // Re enable ISRs before an call to QF::PUBLISH
-        QXK_ISR_EXIT();
+    // Re enable ISRs before an call to QF::PUBLISH
+    QXK_ISR_EXIT();
 
-
-        if (enc_action != 0 || interrupt) {
+    for (uint8_t encodernum = 0; encodernum < CONFIG_NUM_ENCODERS; encodernum++) {
+        if (interrupt[encodernum]) {
             // if interrupts are enabled fire an interrupt
-            if (!AOEncoder::m_status[encodernum].bit.DATA_RDY) {
-                AOEncoder::m_status[encodernum].bit.DATA_RDY = 1;
-          
+            AOEncoder::m_status[encodernum].bit.DATA_RDY = 1;
+            if (AOEncoder::m_status[encodernum].bit.DATA_RDY) {
                 if (AOEncoder::m_inten[encodernum].bit.DATA_RDY){
                    Evt *evt = new InterruptSetReq( SEESAW_INTERRUPT_ENCODER_DATA_RDY );
                    QF::PUBLISH(evt, 0);
                 }
             }
         }
-        
-        // Record the previous state
-        AOEncoder::m_enc_prev_state[encodernum] = enc_cur_state;
     }
 
     //clear the interrupt
