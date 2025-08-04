@@ -495,24 +495,30 @@ class NeopixelSetBufferLengthReq : public Evt {
 
 class NeopixelSetBufferReq : public Evt {
 	public:
-	NeopixelSetBufferReq(uint16_t addr, Fifo *source) :
-	Evt(NEOPIXEL_SET_BUFFER_REQ), _addr(addr), _source(source){}
+	NeopixelSetBufferReq(uint16_t addr, uint8_t len, uint8_t bpp, Fifo *source) :
+	Evt(NEOPIXEL_SET_BUFFER_REQ), _addr(addr), _len(len), _bpp(bpp), _source(source){}
 
 	uint16_t getAddr() const { return _addr; }
+	uint8_t getLen() const { return _len; }
+	uint8_t getBpp() const { return _bpp; }
 	Fifo *getSource() const { return _source; }
 	private:
 	uint16_t _addr;
+	uint8_t _len;
+	uint8_t _bpp;
 	Fifo *_source;
 };
 
 class NeopixelSetPartialBufferReq : public Evt {
 	public:
-	NeopixelSetPartialBufferReq(uint8_t bpp, Fifo *source) :
-	Evt(NEOPIXEL_SET_PARTIAL_BUFFER_REQ), _bpp(bpp), _source(source){}
+	NeopixelSetPartialBufferReq(uint8_t len, uint8_t bpp, Fifo *source) :
+	Evt(NEOPIXEL_SET_PARTIAL_BUFFER_REQ), _len(len), _bpp(bpp), _source(source){}
 
+	uint8_t getLen() const { return _len; }
 	uint8_t getBpp() const { return _bpp; }
 	Fifo *getSource() const { return _source; }
 	private:
+	uint8_t _len;
 	uint8_t _bpp;
 	Fifo *_source;
 };

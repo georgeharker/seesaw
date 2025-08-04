@@ -47,7 +47,7 @@ using namespace FW;
 static uint8_t PixelData[CONFIG_NEOPIXEL_BUF_MAX];
 
 Neopixel::Neopixel() :
-    QActive((QStateHandler)&Neopixel::InitialPseudoState), 
+    QActive((QStateHandler)&Neopixel::InitialPseudoState),
     m_id(AO_NEOPIXEL), m_name("Neopix") {}
 
 QState Neopixel::InitialPseudoState(Neopixel * const me, QEvt const * const e) {
@@ -61,7 +61,7 @@ QState Neopixel::InitialPseudoState(Neopixel * const me, QEvt const * const e) {
 	me->subscribe(NEOPIXEL_SET_BUFFER_REQ);
 	me->subscribe(NEOPIXEL_SHOW_REQ);
 	me->subscribe(NEOPIXEL_SET_PARTIAL_BUFFER_REQ);
-      
+
     return Q_TRAN(&Neopixel::Root);
 }
 
@@ -123,7 +123,7 @@ QState Neopixel::Stopped(Neopixel * const me, QEvt const * const e) {
 			Evt const &req = EVT_CAST(*e);
 			Evt *evt = new NeopixelStartCfm(req.GetSeq(), ERROR_SUCCESS);
 			QF::PUBLISH(evt, me);
-			
+
 #if 0
 			for (int i = 0; i < 8; ++i) {
                 // GBRW
@@ -187,26 +187,26 @@ QState Neopixel::Started(Neopixel * const me, QEvt const * const e) {
 			gpio_init(PORTA, req.getPin(), 1);
 #endif
 			me->m_pin = req.getPin();
-			
+
 			status = Q_HANDLED();
 			break;
 		}
 		case NEOPIXEL_SET_SPEED_REQ: {
 		    LOG_EVENT(e);
 			NeopixelSetSpeedReq const &req = static_cast<NeopixelSetSpeedReq const &>(*e);
-			
+
 			me->m_speed = req.getSpeed();
 			status = Q_HANDLED();
-			
+
 			break;
 		}
 		case NEOPIXEL_SET_BUFFER_LEN_REQ: {
 		    LOG_EVENT(e);
 			NeopixelSetBufferLengthReq const &req = static_cast<NeopixelSetBufferLengthReq const &>(*e);
 			uint16_t len = req.getLen();
-			
+
 			Q_ASSERT(len <= CONFIG_NEOPIXEL_BUF_MAX);
-			
+
 			me->m_pixelDataSize = len;
 			status = Q_HANDLED();
 			break;
@@ -216,38 +216,44 @@ QState Neopixel::Started(Neopixel * const me, QEvt const * const e) {
 			NeopixelSetBufferReq const &req = static_cast<NeopixelSetBufferReq const &>(*e);
 			uint16_t start = req.getAddr();
 			Fifo *fifo = req.getSource();
-			uint16_t len = fifo->GetUsedCount();
-			len = (len > CONFIG_NEOPIXEL_BUF_MAX - start ? CONFIG_NEOPIXEL_BUF_MAX - start : len);
-			
-			fifo->Read(PixelData + start, len);
-			
-			//discard any extra data
-			fifo->Reset();
-			
+			uint8_t len = req.getLen();
+			uint8_t bpp = req.getBpp();
+            uint16_t totalLen = len * bpp;
+			totalLen = (totalLen > CONFIG_NEOPIXEL_BUF_MAX - start ? CONFIG_NEOPIXEL_BUF_MAX - start : totalLen);
+
+			fifo->Read(PixelData + start, totalLen);
+
+			// DO NOT discard any extra data
+            // it may be part of next command
+			// fifo->Reset();
+
 			status = Q_HANDLED();
 			break;
 		}
 		case NEOPIXEL_SET_PARTIAL_BUFFER_REQ: {
 		    LOG_EVENT(e);
 			NeopixelSetPartialBufferReq const &req = static_cast<NeopixelSetPartialBufferReq const &>(*e);
+			uint8_t len = req.getLen();
 			uint8_t bpp = req.getBpp();
 			Fifo *fifo = req.getSource();
-			uint16_t len = fifo->GetUsedCount();
-			
+
             while (len > 0) {
                 uint8_t index;
 			    fifo->Read(&index, 1);
                 if (index * bpp < CONFIG_NEOPIXEL_BUF_MAX)
     			    fifo->Read(PixelData + index * bpp, bpp);
                 else {
-                    break;
+                    // Ignore all OOB data but consume it
+                    uint8_t d[4];
+    			    fifo->Read(d, bpp);
                 }
-                len -= bpp + 1;
+                len -= 1;
             }
-			
-			//discard any extra data
-			fifo->Reset();
-			
+
+			// DO NOT discard any extra data
+            // it may be part of next command
+			// fifo->Reset();
+
 			status = Q_HANDLED();
 			break;
 		}
