@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-Iinclude, -Ilib/qp/include, -Ilib/qp/extras, -Ilib/qp/ports/arm-cm/qxk/gnu]
