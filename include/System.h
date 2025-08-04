@@ -83,8 +83,8 @@ protected:
 
 #if CONFIG_I2C_SLAVE
 	enum {
-		I2C_SLAVE_OUT_FIFO_ORDER = 7,
-		I2C_SLAVE_IN_FIFO_ORDER = 8,
+		I2C_SLAVE_OUT_FIFO_ORDER = 10,
+		I2C_SLAVE_IN_FIFO_ORDER = 10,
 	};
 	
 	uint8_t m_I2CSlaveOutFifoStor[1 << I2C_SLAVE_OUT_FIFO_ORDER];
